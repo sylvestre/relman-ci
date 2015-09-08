@@ -1,0 +1,14 @@
+workspace/
+users/
+opt/*-pass.txt
+opt/*.tar.gz
+jobs/*/lastStable
+jobs/*/workspace/
+jobs/*/builds/
+jobs/*/disk-usage.xml
+jobs/*/lastSuccessful
+jobs/*/nextBuildNumber
+jobs/*/svnexternals.txt
+jobs/*/configurations/
+jobs/*/scm-polling.log
+
