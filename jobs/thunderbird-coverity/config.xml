@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.51">
+    <source>http://hg.mozilla.org/comm-central/</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H 23 */7 * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e 
+export PATH=$PATH:/opt/cov-analysis/bin/
+echo &quot;Cleanup previous report&quot;
+rm -rf reports/
+
+python client.py checkout
+
+echo &quot;Cleanup&quot;
+./mozilla/mach clobber
+
+cat &gt; .mozconfig &lt;&lt;EOF
+ac_add_options --enable-debug --verbose --disable-unified-compilation
+ac_add_options --enable-application=mail
+ac_add_options --enable-calendar
+
+
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j3&quot;
+EOF
+
+echo &quot;Apply patches on top of the hg repo&quot;
+hg qpop -a
+hg qpush -a
+
+echo &quot;Rebuild all&quot;
+./mozilla/mach --log-no-times build -v
+
+echo &quot;Only rebuild tb and not fx&quot;
+cd obj-x86_64-unknown-linux-gnu
+make export
+make
+cov-configure --gcc
+
+cat &gt; rebuild.sh &lt;&lt;EOF
+#!/bin/bash
+set -e
+export COMPS=CXX=/usr/bin/g++ CC=/usr/bin/gcc
+cd mailnews/&amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+cd calendar/lightning/ &amp;&amp; make clean &amp;&amp; cd -
+cd calendar/libical &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+cd calendar/base/backend/libical/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+cd calendar/lightning/ &amp;&amp; make all \$COMPS &amp;&amp; cd -
+cd db/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+cd ldap/xpcom/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+cd mail/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+EOF
+
+chmod +x rebuild.sh
+
+cov-build --dir cov-int $(pwd)/rebuild.sh
+tar zcvf cov-build.tar.gz cov-int/
+
+minimumsize=120000
+actualsize=$(du -k cov-build.tar.gz | cut -f 1)
+if [ $actualsize -ge $minimumsize ]; then
+        sh /opt/upload-to-coverity.sh
+else
+	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	exit 1
+fi
+
+
+cd ..
+rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/
+exit 0</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.15">
+      <recipients>sylvestre@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

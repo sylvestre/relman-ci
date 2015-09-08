@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>4</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+    <source>http://hg.mozilla.org/comm-central/</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H 16 * * * </spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+set -e
+
+umask 0022
+
+CLANG_VERSION=3.8
+echo &quot;Cleanup previous report&quot;
+rm -rf reports/
+python client.py checkout
+
+rm -rf mozilla/extensions/purple
+hg clone http://hg.mozilla.org/users/florian_queze.net/purple mozilla/extensions/purple
+# Temporary workaround. Breaks the build otherwise
+sed -i &quot;/EXTRA_DSO_LDOPTS/d&quot; mozilla/extensions/purple/purplexpcom/src/Makefile.in
+
+echo &quot;Cleanup&quot;
+./mozilla/mach clobber
+
+cat &gt; .mozconfig &lt;&lt;EOF
+#ac_add_options --enable-debug
+ac_add_options --verbose
+ac_add_options --enable-application=im
+ac_add_options --enable-extensions=purple
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j23&quot;
+EOF
+
+echo &quot;Apply patches on top of the hg repo&quot;
+hg qpop -a
+hg qpush -a
+
+echo &quot;Rebuild all&quot;
+
+scan-build-$CLANG_VERSION ./mozilla/mach --log-no-times build -v||true
+# Rebuild a second time to fix the issues
+scan-build-$CLANG_VERSION ./mozilla/mach --log-no-times build -v
+
+echo &quot;Only rebuild instantbird and not fx&quot;
+cd obj-x86_64-unknown-linux-gnu
+cat &gt; rebuild.sh &lt;&lt;EOF
+set -e
+make export
+make
+export COMPS=CXX=/usr/share/clang/scan-build-$CLANG_VERSION/c++-analyzer CC=/usr/share/clang/scan-build-$CLANG_VERSION/ccc-analyzer
+cd extensions/purple &amp;&amp; make -j1 clean \$COMPS &amp;&amp; cd -
+cd extensions/purple/libpurple/ &amp;&amp; make -j1 clean all \$COMPS &amp;&amp; cd -
+cd extensions/purple &amp;&amp; make -j1 all \$COMPS &amp;&amp; cd -
+cd chat/&amp;&amp; make -j1 clean all \$COMPS &amp;&amp; cd -
+cd mozilla/extensions/purple &amp;&amp; make -j1 clean all &amp;&amp; cd -
+cd im/ &amp;&amp; make clean -j1 all \$COMPS &amp;&amp; cd -
+EOF
+
+chmod +x rebuild.sh
+
+scan-build-$CLANG_VERSION -analyzer-config stable-report-filename=true --use-c++=/usr/bin/clang++-$CLANG_VERSION $(pwd)/rebuild.sh
+
+cd ..
+
+echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
+SCAN_BUILD_DIR=$(ls -1d /tmp/scan-build-*|tail -1)
+mkdir -p reports/
+TARGET=reports/instantbird-scan-build
+rm -rf $TARGET
+
+echo &quot;Move $SCAN_BUILD_DIR&quot;
+mv $SCAN_BUILD_DIR $TARGET
+
+echo &quot;Set correct permissions&quot;
+chmod o+r $TARGET*
+
+
+echo &quot;Send it&quot;
+rsync -arv -R $TARGET sledru@people.mozilla.org:/home/sledru/public_html/
+# --delete  removed because of .htaccess &amp; .htpasswd
+
+rm -rf obj-x86_64-unknown-linux-gnu
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.15">
+      <recipients>sylvestre@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

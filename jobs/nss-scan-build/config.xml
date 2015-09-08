@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>@daily</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>umask 0022
+rm -rf $(find . -name &quot;*.OBJ&quot;)
+if test ! -d nspr; then
+  hg clone https://hg.mozilla.org/projects/nspr
+else
+  cd nspr &amp;&amp; hg pull -u &amp;&amp; cd -
+fi
+if test ! -d nss; then
+  hg clone https://hg.mozilla.org/projects/nss
+else
+  cd nss &amp;&amp; hg pull -u &amp;&amp; cd -
+fi
+
+cd nss
+make nss_clean_all
+USE_64=1 scan-build-3.8  -analyzer-config stable-report-filename=true make nss_build_all
+
+
+echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
+SCAN_BUILD_DIR=$(ls -1d /tmp/scan-build-*|tail -1)
+mkdir -p reports/
+
+rm -rf reports/nss-scan-build
+
+echo &quot;Move it&quot;
+mv $SCAN_BUILD_DIR reports/nss-scan-build
+
+echo &quot;Set correct permissions&quot;
+chmod o+r reports/nss-scan-build/*
+
+echo &quot;Send it&quot;
+rsync -arv -R  reports/nss-scan-build/ sledru@people.mozilla.org:/home/sledru/public_html/
+# --delete  removed because of .htaccess &amp; .htpasswd
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

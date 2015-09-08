@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>4</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.52">
+    <source>https://hg.mozilla.org/projects/nspr</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>true</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>@daily</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>umask 0022
+
+./configure --enable-debug --enable-64bit
+scan-build-3.8  -analyzer-config stable-report-filename=true make
+
+echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
+SCAN_BUILD_DIR=$(ls -1d /tmp/scan-build-*|tail -1)
+mkdir -p reports/
+
+rm -rf reports/nspr-scan-build
+
+echo &quot;Move it&quot;
+mv $SCAN_BUILD_DIR reports/nspr-scan-build
+
+echo &quot;Set correct permissions&quot;
+chmod o+rx reports/
+chmod o+r reports/nspr-scan-build/*
+
+echo &quot;Send it&quot;
+rsync -arv -R  reports/nspr-scan-build/ sledru@people.mozilla.org:/home/sledru/public_html/
+# --delete  removed because of .htaccess &amp; .htpasswd
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

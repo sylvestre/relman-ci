@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+    <source>http://hg.mozilla.org/comm-central/</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H 13 * * 2,5</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e 
+export PATH=$PATH:/opt/cov-analysis/bin/
+echo &quot;Cleanup previous report&quot;
+rm -rf reports/
+
+python client.py checkout
+
+rm -rf mozilla/extensions/purple
+hg clone http://hg.mozilla.org/users/florian_queze.net/purple mozilla/extensions/purple
+
+# Temporary workaround. Breaks the build otherwise
+sed -i &quot;/EXTRA_DSO_LDOPTS/d&quot; mozilla/extensions/purple/purplexpcom/src/Makefile.in
+
+echo &quot;Cleanup&quot;
+./mozilla/mach clobber
+
+cat &gt; .mozconfig &lt;&lt;EOF
+ac_add_options --enable-debug --verbose
+ac_add_options --enable-application=im
+ac_add_options --enable-extensions=purple
+
+
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j20&quot;
+EOF
+
+echo &quot;Apply patches on top of the hg repo&quot;
+hg qpop -a
+hg qpush -a
+
+echo &quot;Rebuild all&quot;
+./mozilla/mach --log-no-times build -v||true
+# Rebuild a second time to fix the issues
+./mozilla/mach --log-no-times build -v
+
+echo &quot;Only rebuild instantbird and not fx&quot;
+cd obj-x86_64-unknown-linux-gnu
+make export
+make
+cov-configure --gcc
+
+cat &gt; rebuild.sh &lt;&lt;EOF
+#!/bin/bash
+set -e
+export COMPS=CXX=/usr/bin/g++ CC=/usr/bin/gcc
+cd extensions/purple &amp;&amp; make -j1 clean \$COMPS &amp;&amp; cd -
+cd extensions/purple/libpurple/ &amp;&amp; make -j1 clean all \$COMPS &amp;&amp; cd -
+cd extensions/purple &amp;&amp; make -j1 all \$COMPS &amp;&amp; cd -
+cd chat/&amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+cd mozilla/extensions/purple &amp;&amp; make clean &amp;&amp; cd -
+cd im/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
+EOF
+
+chmod +x rebuild.sh
+
+cov-build --dir cov-int $(pwd)/rebuild.sh
+tar zcvf cov-build.tar.gz cov-int/
+
+minimumsize=20000
+actualsize=$(du -k cov-build.tar.gz | cut -f 1)
+if [ $actualsize -ge $minimumsize ]; then
+        sh /opt/upload-to-coverity-instantbird.sh
+else
+	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	exit 1
+fi
+
+
+cd ..
+rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/
+exit 0</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.15">
+      <recipients>sylvestre@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

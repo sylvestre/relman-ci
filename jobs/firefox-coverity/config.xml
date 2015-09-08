@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.52">
+    <source>http://hg.mozilla.org/mozilla-central/</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H 0 */5 * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e 
+export PATH=$PATH:/opt/cov-analysis/bin/
+echo &quot;Cleanup previous report&quot;
+rm -rf reports/
+
+python client.py checkout
+
+echo &quot;Cleanup&quot;
+./mach clobber
+
+cat &gt; .mozconfig &lt;&lt;EOF
+ac_add_options --enable-debug --verbose
+
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+EOF
+
+echo &quot;Apply patches on top of the hg repo&quot;
+hg qpop -a
+hg qpush -a
+
+echo &quot;Rebuild all&quot;
+cov-configure --gcc
+cov-build --dir cov-int  ./mach --log-no-times build -v
+
+tar zcvf cov-build.tar.gz cov-int/
+
+minimumsize=200000
+actualsize=$(du -k cov-build.tar.gz | cut -f 1)
+if [ $actualsize -ge $minimumsize ]; then
+        sh /opt/upload-to-coverity-fx.sh
+else
+	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	exit 1
+fi
+
+rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/
+exit 0
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.15">
+      <recipients>sylvestre@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>
