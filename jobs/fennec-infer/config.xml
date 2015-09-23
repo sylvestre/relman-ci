@@ -10,7 +10,7 @@
   </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.52">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -24,15 +24,23 @@
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>H 0 */1 * *</spec>
-    </hudson.triggers.TimerTrigger>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>update-infer, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>set -e 
-export PATH=$PATH:/opt/infer/infer/infer/bin
+      <command>set -e
+
+export PATH=$PATH:/opt/infer-dev/infer.git/infer/bin/
 echo &quot;Cleanup previous report&quot;
 rm -rf reports/
 
@@ -59,7 +67,10 @@ hg qpop -a
 hg qpush -a
 
 echo &quot;Rebuild all&quot;
-infer -- make clean all
+OCAMLRUNPARAM=b infer --project_root /var/lib/jenkins/workspace/fennec-infer/build/annotationProcessors/ -o fennec-infer/ -x fennec -r ${MERCURIAL_REVISION_SHORT} -- make clean all
+chmod o+rx $(find fennec-infer/ -type d)
+chmod -R o+r fennec-infer
+rsync -arv -R  fennec-infer/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
 
 exit 0
 </command>

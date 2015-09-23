@@ -10,7 +10,7 @@
   </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.52">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -24,9 +24,16 @@
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>H 0 */1 * *</spec>
-    </hudson.triggers.TimerTrigger>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>update-infer, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
@@ -35,7 +42,7 @@
 set -e -v
 
 umask 0022
-export PATH=$PATH:/opt/infer/infer/infer/bin
+export PATH=$PATH:/opt/infer-dev/infer.git/infer/bin/
 echo &quot;Cleanup previous build&quot;
 rm -rf rm -rf obj-x86_64-unknown-linux-gnu reports/ /tmp/scan-build-*
 
@@ -54,7 +61,11 @@ hg qpop -a
 hg qpush -a
 
 echo &quot;Build using infer&quot;
-infer -- make clean all</command>
+infer --project_root /var/lib/jenkins/workspace/firefox-infer/ -o firefox-infer/ -x firefox -r ${MERCURIAL_REVISION_SHORT} --  make clean all
+chmod o+rx $(find firefox-infer/ -type d)
+chmod -R o+r firefox-infer
+rsync -arv -R  firefox-infer/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
