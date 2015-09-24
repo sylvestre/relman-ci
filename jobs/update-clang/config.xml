@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>CLANG_VERSION=3.8
+sudo /usr/bin/apt-get update
+sudo /usr/bin/apt-get install clang-${CLANG_VERSION} -y --force-yes
+cd /usr/share/clang/scan-build-${CLANG_VERSION}/
+sudo /usr/bin/patch -p0 -t &lt; ~/patch/scan-build-show-desc.diff
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
