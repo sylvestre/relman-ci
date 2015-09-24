@@ -1,0 +1,38 @@
+--- scan-build	2015-05-03 09:20:38.000000000 +0200
++++ /root/scan-build	2015-05-03 19:11:52.178316171 +0200
+@@ -426,7 +426,7 @@
+   }
+ 
+   push @$Index,[ $FName, $BugCategory, $BugType, $BugFile, $BugFunction, $BugLine,
+-                 $BugPathLength ];
++                 $BugPathLength, $BugDescription ];
+ }
+ 
+ ##----------------------------------------------------------------------------##
+@@ -745,10 +745,10 @@
+ 
+       print OUT "<tr class=\"bt_$x\">";
+       print OUT "<td class=\"DESC\">";
+-      print OUT $row->[1];
++      print OUT $row->[1]; # $BugCategory
+       print OUT "</td>";
+       print OUT "<td class=\"DESC\">";
+-      print OUT $row->[2];
++      print OUT $row->[2]; # $BugType
+       print OUT "</td>";
+ 
+       # Update the file prefix.
+@@ -776,11 +776,11 @@
+       print OUT "</td>";
+ 
+       print OUT "<td class=\"DESC\">";
+-      print OUT $row->[4];
++      print OUT $row->[4]; # Function
+       print OUT "</td>";
+ 
+       # Print out the quantities.
+-      for my $j ( 5 .. 6 ) {
++      for my $j ( 5 .. 6 ) { # Line & Path length
+         print OUT "<td class=\"Q\">$row->[$j]</td>";
+       }
+ 
