@@ -10,7 +10,7 @@
   </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.52">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -49,7 +49,7 @@ ac_add_options --enable-application=mobile/android
 ac_add_options --target=arm-linux-androideabi
 
 # With the following Android SDK and NDK:
-ac_add_options --with-android-sdk=&quot;/var/lib/jenkins/.mozbuild/android-sdk-linux/platforms/android-21&quot;
+ac_add_options --with-android-sdk=&quot;/var/lib/jenkins/.mozbuild/android-sdk-linux/&quot;
 ac_add_options --with-android-ndk=&quot;/var/lib/jenkins/.mozbuild/android-ndk-r8e&quot;
 
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
