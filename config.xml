@@ -44,6 +44,7 @@
         <string>nspr-scan-build</string>
         <string>nss-scan-build</string>
         <string>thunderbird-scan-build</string>
+        <string>update-clang</string>
       </jobNames>
       <jobFilters/>
       <columns>
@@ -90,8 +91,11 @@
       <properties class="hudson.model.View$PropertyList"/>
       <jobNames>
         <comparator class="hudson.util.CaseInsensitiveComparator"/>
-        <string>fennec-coverity</string>
         <string>fennec-infer</string>
+        <string>firefox-infer</string>
+        <string>nspr-infer</string>
+        <string>nss-infer</string>
+        <string>update-infer</string>
       </jobNames>
       <jobFilters/>
       <columns>
