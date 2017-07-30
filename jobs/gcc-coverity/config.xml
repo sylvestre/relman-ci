@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@github.com:gcc-mirror/gcc.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H 2 * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e 
+export PATH=$PATH:/opt/cov-analysis/bin/
+
+
+echo &quot;Rebuild all&quot;
+cov-configure --gcc --xml-option=skip_file:&quot;/tmp/*&quot;
+mkdir -p build-gcc
+cd build-gcc
+mkdir -p cov-int
+
+../configure --with-gnu-as --with-gnu-ld --disable-bootstrap  --enable-languages=jit,c,c++,fortran,lto,objc  --enable-host-shared
+
+cov-build --dir cov-int make -j 7
+
+tar zcvf cov-build.tar.gz cov-int/
+
+minimumsize=160000
+actualsize=$(du -k cov-build.tar.gz | cut -f 1)
+if [ $actualsize -ge $minimumsize ]; then
+        sh /opt/upload-to-coverity-gcc.sh
+else
+	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	exit 1
+fi
+#rm -r cov-build.tar.gz cov-int/
+make distclean||true
+
+rm -rf ../build-gcc
+
+exit 0
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.19">
+      <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

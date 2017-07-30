@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
+    <source>https://hg.mozilla.org/mozilla-central/</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>update-clang, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+set -e
+
+CLANG_VERSION=5.0
+umask 0022
+
+echo &quot;Cleanup previous build&quot;
+rm -rf rm -rf obj-x86_64-unknown-linux-gnu
+
+echo &quot;Cleanup&quot;
+./mach clobber
+
+export MACH_NO_WRITE_TIMES=on
+
+cat &gt; .mozconfig &lt;&lt;EOF
+export CC=clang-$CLANG_VERSION
+export CXX=clang++-$CLANG_VERSION
+ac_add_options --enable-debug
+# --disable-unified-compilation
+ac_add_options --enable-warnings-as-errors 
+
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j20&quot;
+EOF
+
+export PATH=$PATH:/var/lib/jenkins/.cargo/bin/
+echo &quot;Build using clang $CLANG_VERSION&quot;
+./mach --log-no-times build -v  
+
+rm -rf obj-x86_64-unknown-linux-gnu reports/fx-scan-build/</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.59">
+      <healthy></healthy>
+      <unHealthy></unHealthy>
+      <thresholdLimit>low</thresholdLimit>
+      <pluginName>[WARNINGS] </pluginName>
+      <defaultEncoding></defaultEncoding>
+      <canRunOnFailed>false</canRunOnFailed>
+      <usePreviousBuildAsReference>false</usePreviousBuildAsReference>
+      <useStableBuildAsReference>false</useStableBuildAsReference>
+      <useDeltaValues>false</useDeltaValues>
+      <thresholds plugin="analysis-core@1.82">
+        <unstableTotalAll></unstableTotalAll>
+        <unstableTotalHigh></unstableTotalHigh>
+        <unstableTotalNormal></unstableTotalNormal>
+        <unstableTotalLow></unstableTotalLow>
+        <unstableNewAll></unstableNewAll>
+        <unstableNewHigh></unstableNewHigh>
+        <unstableNewNormal></unstableNewNormal>
+        <unstableNewLow></unstableNewLow>
+        <failedTotalAll></failedTotalAll>
+        <failedTotalHigh></failedTotalHigh>
+        <failedTotalNormal></failedTotalNormal>
+        <failedTotalLow></failedTotalLow>
+        <failedNewAll></failedNewAll>
+        <failedNewHigh></failedNewHigh>
+        <failedNewNormal></failedNewNormal>
+        <failedNewLow></failedNewLow>
+      </thresholds>
+      <shouldDetectModules>false</shouldDetectModules>
+      <dontComputeNew>true</dontComputeNew>
+      <doNotResolveRelativePaths>true</doNotResolveRelativePaths>
+      <includePattern></includePattern>
+      <excludePattern></excludePattern>
+      <messagesPattern></messagesPattern>
+      <parserConfigurations/>
+      <consoleParsers>
+        <hudson.plugins.warnings.ConsoleParser>
+          <parserName>Clang (LLVM based)</parserName>
+        </hudson.plugins.warnings.ConsoleParser>
+      </consoleParsers>
+    </hudson.plugins.warnings.WarningsPublisher>
+    <hudson.tasks.Mailer plugin="mailer@1.19">
+      <recipients>sylvestre@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

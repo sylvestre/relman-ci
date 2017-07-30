@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+    <source>http://hg.mozilla.org/mozilla-central/</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>default</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>update-codechecker, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+
+cat &gt; .mozconfig &lt;&lt;EOF
+ac_add_options --enable-debug
+
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+mk_add_options AUTOCLOBBER=1
+EOF
+
+
+cat &gt; skip.list &lt;&lt;EOF
+-/usr/*
+-*/xpcom/tests/*
+-*/mfbt/tests/*
+-*/dom/bindings/Test*
+EOF
+source ~/checker_env/bin/activate
+export PATH=~/codechecker_package/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
+cat ~/codechecker_package/CodeChecker/config/package_layout.json
+CHECKS=$(CodeChecker checkers|awk &apos;{print &quot;-e &quot; $2}&apos; |grep -v -E &quot;(alpha\.|osx\.|debug\.|google-readability-casting|llvm-include-order|google-readability-braces-around-statements)&quot;|tr &quot;\n&quot; &quot; &quot;)
+CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list $CHECKS  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>suppress.txt, skip.list</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>
