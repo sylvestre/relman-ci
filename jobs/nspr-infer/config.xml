@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
     <source>https://hg.mozilla.org/projects/nspr</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -35,12 +35,16 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>export PATH=$PATH:/opt/infer-dev/infer.git/infer/bin/
-
+      <command>export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/binary/infer/bin/
 umask 0022
 
 ./configure --enable-debug --enable-64bit
-infer -o nspr-infer/ -x nspr  -- make
+infer run -o ${JOB_NAME}/  -- make clean all
+
+! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/${JOB_NAME}/bugs.txt ${JOB_NAME}/bugs.txt`
+if test -n &quot;$DIFF_RESULT&quot;; then
+	echo &quot;$DIFF_RESULT&quot;|mail -v -s &quot;${JOB_NAME} changes&quot; sylvestre@mozilla.com
+fi
 
 chmod o+rx $(find nspr-infer/ -type d)
 chmod -R o+r nspr-infer
@@ -48,6 +52,15 @@ rsync -arv -R  nspr-infer/ sledru@people.mozilla.org:/home/sledru/public_html/re
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>nspr-infer/bugs.txt</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
   <buildWrappers/>
 </project>

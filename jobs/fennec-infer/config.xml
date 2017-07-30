@@ -2,15 +2,18 @@
 <project>
   <actions/>
   <description></description>
-  <logRotator class="hudson.tasks.LogRotator">
-    <daysToKeep>-1</daysToKeep>
-    <numToKeep>4</numToKeep>
-    <artifactDaysToKeep>-1</artifactDaysToKeep>
-    <artifactNumToKeep>-1</artifactNumToKeep>
-  </logRotator>
   <keepDependencies>false</keepDependencies>
-  <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>4</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -38,9 +41,11 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>set -e
+      <command>#!/bin/bash
 
-export PATH=$PATH:/opt/infer-dev/infer.git/infer/bin/
+set -e
+
+export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/binary/infer/bin/:/var/lib/jenkins/.cargo/bin/
 echo &quot;Cleanup previous report&quot;
 rm -rf reports/
 
@@ -50,16 +55,26 @@ echo &quot;Cleanup&quot;
 ./mach clobber
 
 cat &gt; .mozconfig &lt;&lt;EOF
-ac_add_options --enable-debug --verbose
 # Build Firefox for Android:
 ac_add_options --enable-application=mobile/android
 ac_add_options --target=arm-linux-androideabi
+ac_add_options --enable-artifact-builds
+ac_add_options --enable-debug
 
 # With the following Android SDK and NDK:
 ac_add_options --with-android-sdk=&quot;/var/lib/jenkins/.mozbuild/android-sdk-linux&quot;
-ac_add_options --with-android-ndk=&quot;/var/lib/jenkins/.mozbuild/android-ndk-r10e&quot;
+#ac_add_options --with-android-ndk=&quot;/var/lib/jenkins/.mozbuild/android-ndk-r11b&quot;
+
+# Don&apos;t want to have proguard run on it
+export MOZ_DISABLE_PROGUARD=1
+
+#ac_add_options --enable-artifact-builds
 
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+#HOST_CXX=/var/lib/jenkins/.mozbuild/android-ndk-r11b/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
+#HOST_CC=/var/lib/jenkins/.mozbuild/android-ndk-r11b/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc
+
+
 EOF
 
 echo &quot;Apply patches on top of the hg repo&quot;
@@ -67,18 +82,32 @@ hg qpop -a
 hg qpush -a
 
 echo &quot;Rebuild all&quot;
-OCAMLRUNPARAM=b infer --project_root /var/lib/jenkins/workspace/fennec-infer/build/annotationProcessors/ -o fennec-infer/ -x fennec -r ${MERCURIAL_REVISION_SHORT} -- make clean all
-chmod o+rx $(find fennec-infer/ -type d)
-chmod -R o+r fennec-infer
-rsync -arv -R  fennec-infer/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
+#OCAMLRUNPARAM=b infer --project_root /var/lib/jenkins/workspace/${JOB_NAME}/build/annotationProcessors/ -o ${JOB_NAME}/ -- make clean all
+INFER_RESULTS_DIR=fennec-infer/ INFER_OLD_PATH=.  OCAMLRUNPARAM=b infer -o ${JOB_NAME}/ run  -- make clean all
 
+! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/${JOB_NAME}/bugs.txt ${JOB_NAME}/bugs.txt`
+if test -n &quot;$DIFF_RESULT&quot;; then
+	echo &quot;$DIFF_RESULT&quot;|mail -v -s &quot;${JOB_NAME} changes&quot; sylvestre@mozilla.com michael.l.comella@gmail.com
+fi
+
+chmod o+rx $(find ${JOB_NAME}/ -type d)
+chmod -R o+r ${JOB_NAME}
+rsync -arv -R  ${JOB_NAME}/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
 exit 0
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.15">
-      <recipients>sylvestre@mozilla.com</recipients>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>fennec-infer/bugs.txt</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.Mailer plugin="mailer@1.19">
+      <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>

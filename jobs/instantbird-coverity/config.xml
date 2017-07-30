@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
     <source>http://hg.mozilla.org/comm-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -63,7 +63,7 @@ echo &quot;Only rebuild instantbird and not fx&quot;
 cd obj-x86_64-unknown-linux-gnu
 make export
 make
-cov-configure --gcc
+cov-configure --gcc --xml-option=skip_file:&quot;/tmp/*&quot;
 
 cat &gt; rebuild.sh &lt;&lt;EOF
 #!/bin/bash
@@ -98,8 +98,8 @@ exit 0</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.15">
-      <recipients>sylvestre@mozilla.com</recipients>
+    <hudson.tasks.Mailer plugin="mailer@1.19">
+      <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>

@@ -27,9 +27,10 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>export PATH=$PATH:/opt/infer-dev/infer.git/infer/bin/
+      <command>export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/binary/infer/bin/
 
 umask 0022
+
 rm -rf $(find . -name &quot;*.OBJ&quot;)
 if test ! -d nspr; then
   hg clone https://hg.mozilla.org/projects/nspr
@@ -44,14 +45,28 @@ fi
 
 cd nss
 make nss_clean_all
-USE_64=1 infer -o nss-infer/ -x nss  -- make nss_build_all
+USE_64=1 infer -o ${JOB_NAME}/ -- make nss_build_all
+
+! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/nss/${JOB_NAME}/bugs.txt ${JOB_NAME}/bugs.txt`
+if test -n &quot;$DIFF_RESULT&quot;; then
+	echo &quot;$DIFF_RESULT&quot;|mail -v -s &quot;${JOB_NAME} changes&quot; sylvestre@mozilla.com fkiefer@mozilla.com
+fi
 
 chmod o+rx $(find nss-infer/ -type d)
-chmod -R o+r nss-infer
-rsync -arv -R  nss-infer/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
+chmod -R o+r ${JOB_NAME}
+rsync -arv -R  ${JOB_NAME}/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>nss/nss-infer/bugs.txt</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
   <buildWrappers/>
 </project>

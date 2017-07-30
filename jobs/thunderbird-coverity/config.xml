@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.51">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
     <source>http://hg.mozilla.org/comm-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -19,14 +19,17 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H 23 */7 * *</spec>
+      <spec>@daily</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>set -e 
-export PATH=$PATH:/opt/cov-analysis/bin/
+export PATH=$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin
+echo &quot;Cleanup previous build&quot;
+rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/ obj-x86_64-pc-linux-gnu
+
 echo &quot;Cleanup previous report&quot;
 rm -rf reports/
 
@@ -36,26 +39,52 @@ echo &quot;Cleanup&quot;
 ./mozilla/mach clobber
 
 cat &gt; .mozconfig &lt;&lt;EOF
-ac_add_options --enable-debug --verbose --disable-unified-compilation
+ac_add_options --enable-debug
 ac_add_options --enable-application=mail
 ac_add_options --enable-calendar
 
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j3&quot;
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
 EOF
 
 echo &quot;Apply patches on top of the hg repo&quot;
 hg qpop -a
 hg qpush -a
 
+cd mozilla &amp;&amp; autoconf
+cd js/src &amp;&amp; autoconf
+cd ../../../
+
+cov-configure --gcc --xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
+
 echo &quot;Rebuild all&quot;
-./mozilla/mach --log-no-times build -v
+cov-build --dir cov-int ./mozilla/mach --log-no-times build -v
+
+tar zcvf cov-build.tar.gz cov-int/
+
+minimumsize=120000
+actualsize=$(du -k cov-build.tar.gz | cut -f 1)
+if [ $actualsize -ge $minimumsize ]; then
+        sh /opt/upload-to-coverity.sh
+else
+	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	exit 1
+fi
+
+
+#cd ..
+rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/ obj-x86_64-pc-linux-gnu
+
+exit 0
+
+
+# old method, after ./mozilla/mach 
 
 echo &quot;Only rebuild tb and not fx&quot;
-cd obj-x86_64-unknown-linux-gnu
+cd obj-x86_64-*-linux-gnu
 make export
 make
-cov-configure --gcc
+cov-configure --gcc --xml-option=skip_file:&quot;/tmp/*&quot;
 
 cat &gt; rebuild.sh &lt;&lt;EOF
 #!/bin/bash
@@ -73,27 +102,12 @@ EOF
 
 chmod +x rebuild.sh
 
-cov-build --dir cov-int $(pwd)/rebuild.sh
-tar zcvf cov-build.tar.gz cov-int/
-
-minimumsize=120000
-actualsize=$(du -k cov-build.tar.gz | cut -f 1)
-if [ $actualsize -ge $minimumsize ]; then
-        sh /opt/upload-to-coverity.sh
-else
-	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
-	exit 1
-fi
-
-
-cd ..
-rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/
-exit 0</command>
+cov-build --dir cov-int $(pwd)/rebuild.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.15">
-      <recipients>sylvestre@mozilla.com</recipients>
+    <hudson.tasks.Mailer plugin="mailer@1.19">
+      <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>

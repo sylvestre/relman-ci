@@ -17,14 +17,17 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>CLANG_VERSION=3.9
-sudo /usr/bin/apt-get update
-sudo /usr/bin/apt-get --reinstall install clang-${CLANG_VERSION} -y --force-yes
-cd /usr/share/clang/scan-build-${CLANG_VERSION}/bin/
-sudo /usr/bin/patch -p0 &lt; ~/patch/scan-build-show-desc.diff
+      <command>sudo /usr/bin/apt-get update
+sudo /usr/bin/apt-get --reinstall install clang-tidy-6.0 clang-6.0 -y --force-yes
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.19">
+      <recipients>sylvestre@mozilla.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
   <buildWrappers/>
 </project>

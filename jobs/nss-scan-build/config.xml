@@ -32,7 +32,7 @@ fi
 
 cd nss
 make nss_clean_all
-USE_64=1 scan-build-3.8  -analyzer-config stable-report-filename=true make nss_build_all
+USE_64=1 scan-build-5.0  -analyzer-config stable-report-filename=true make nss_build_all
 
 
 echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
@@ -50,7 +50,7 @@ chmod o+r reports/nss-scan-build/*
 echo &quot;Send it&quot;
 rsync -arv -R  reports/nss-scan-build/ sledru@people.mozilla.org:/home/sledru/public_html/
 # --delete  removed because of .htaccess &amp; .htpasswd
-</command>
+rm -rf reports/nss-scan-build/</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
