@@ -1,11 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <hudson>
-  <disabledAdministrativeMonitors/>
-  <version>1.596.2</version>
+  <disabledAdministrativeMonitors>
+    <string>OldData</string>
+    <string>jenkins.security.s2m.MasterKillSwitchWarning</string>
+  </disabledAdministrativeMonitors>
+  <version>1.625.2</version>
   <numExecutors>1</numExecutors>
   <mode>NORMAL</mode>
   <useSecurity>true</useSecurity>
-  <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy"/>
+  <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy">
+    <denyAnonymousReadAccess>false</denyAnonymousReadAccess>
+  </authorizationStrategy>
   <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
     <disableSignup>true</disableSignup>
     <enableCaptcha>false</enableCaptcha>
@@ -26,7 +31,8 @@
   <views>
     <hudson.model.AllView>
       <owner class="hudson" reference="../../.."/>
-      <name>All</name>
+      <name>all</name>
+      <description>Hosted by IRILL (http://www.irill.org/)</description>
       <filterExecutors>false</filterExecutors>
       <filterQueue>false</filterQueue>
       <properties class="hudson.model.View$PropertyList"/>
@@ -110,7 +116,7 @@
       <recurse>false</recurse>
     </listView>
   </views>
-  <primaryView>All</primaryView>
+  <primaryView>all</primaryView>
   <slaveAgentPort>0</slaveAgentPort>
   <label></label>
   <nodeProperties/>
