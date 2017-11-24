@@ -18,8 +18,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>sudo /usr/bin/apt-get update
-sudo /usr/bin/apt-get --reinstall install clang-tidy-6.0 clang-6.0 -y --force-yes
-</command>
+sudo /usr/bin/apt-get --reinstall install clang-tidy-6.0 clang-6.0 lld-6.0 -y --force-yes</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
