@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.54">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.1">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -34,6 +34,7 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
+rm -rf codechecker-results
 
 cat &gt; .mozconfig &lt;&lt;EOF
 ac_add_options --enable-debug
@@ -50,11 +51,18 @@ cat &gt; skip.list &lt;&lt;EOF
 -*/dom/bindings/Test*
 EOF
 source ~/checker_env/bin/activate
-export PATH=~/codechecker_package/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
-cat ~/codechecker_package/CodeChecker/config/package_layout.json
-CHECKS=$(CodeChecker checkers|awk &apos;{print &quot;-e &quot; $2}&apos; |grep -v -E &quot;(alpha\.|osx\.|debug\.|google-readability-casting|llvm-include-order|google-readability-braces-around-statements)&quot;|tr &quot;\n&quot; &quot; &quot;)
-CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list $CHECKS  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
+export PATH=~/workspace/update-codechecker/build/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
+cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+#CHECKS=$(CodeChecker checkers|awk &apos;{print &quot;-e &quot; $2}&apos; |grep -v -E &quot;(alpha\.|osx\.|debug\.|google-readability-casting|llvm-include-order|google-readability-braces-around-statements)&quot;|tr &quot;\n&quot; &quot; &quot;)
+#CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list $CHECKS  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
 
+
+#CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
+
+CHECKERS=$(CodeChecker checkers |awk &apos;{print &quot;--enable &quot; $1}&apos;)
+
+CodeChecker check -j 13 -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 23&quot; -o codechecker-results --enable-all $CHECKERS
+CodeChecker store codechecker-results/ -n firefox_$(date &quot;+%Y%m%d%H%M&quot;) --url firefox
 </command>
     </hudson.tasks.Shell>
   </builders>
