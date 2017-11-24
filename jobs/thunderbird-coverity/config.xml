@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.1">
     <source>http://hg.mozilla.org/comm-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -50,10 +50,6 @@ EOF
 echo &quot;Apply patches on top of the hg repo&quot;
 hg qpop -a
 hg qpush -a
-
-cd mozilla &amp;&amp; autoconf
-cd js/src &amp;&amp; autoconf
-cd ../../../
 
 cov-configure --gcc --xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
 
@@ -106,7 +102,7 @@ cov-build --dir cov-int $(pwd)/rebuild.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.19">
+    <hudson.tasks.Mailer plugin="mailer@1.20">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

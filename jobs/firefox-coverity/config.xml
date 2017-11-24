@@ -19,13 +19,16 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H 2 * * *</spec>
+      <spec>H 2 * * *
+H 14 * * *</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>set -e 
+
+COV_JS=false
 
 echo &quot;Cleanup build&quot;
 rm -rf obj-x86_64-unknown-linux-gnu/  
@@ -60,11 +63,18 @@ hg qpush -a
 
 echo &quot;Rebuild all&quot;
 #cov-configure --gcc --xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
-cov-configure --gcc --xml-option=skip_file:&quot;/tmp/.*\.(cpp|cc|c)&quot;
+cov-configure --gcc --xml-option=skip_file:&quot;/tmp/.*\.(cpp|cc|c)&quot; --xml-option=skip_file:&quot;conftest\.c*&quot; --xml-option=skip_file:&quot;conftest\.c.*&quot;
+if test $COV_JS == true; then
 cov-configure --javascript
+fi
 
 #--fs-capture-search $(pwd)  
-cov-build --dir cov-int ./mach --log-no-times build -v
+OPTIONS=&quot;&quot;
+if test $COV_JS == true; then
+OPTIONS=&quot;$OPTIONS --fs-capture-search $(pwd)&quot;
+fi
+
+cov-build --dir cov-int $OPTIONS  ./mach --log-no-times build -v
 
 tar zcvf cov-build.tar.gz cov-int/
 
@@ -76,7 +86,7 @@ else
 	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
 	exit 1
 fi
-#rm -r cov-build.tar.gz cov-int/
+rm -r cov-build.tar.gz cov-int/
 
 rm -rf obj-x86_64-unknown-linux-gnu obj-x86_64-pc-linux-gnu
 exit 0
