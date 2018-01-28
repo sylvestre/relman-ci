@@ -37,6 +37,9 @@ source ~/checker_env/bin/activate
 pip install -r .ci/basic_python_requirements
 sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-6.0&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-6.0&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
 make package
+#kill $(ps faxw|grep &quot;CodeChecker server&quot;|grep python|awk &apos;{print $1}&apos;)
+#nohup bash ~/run-server-codechecker.sh &amp;
+ 
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
