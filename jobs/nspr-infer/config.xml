@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.1">
     <source>https://hg.mozilla.org/projects/nspr</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -35,7 +35,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/binary/infer/bin/
+      <command>export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/infer/bin/
 umask 0022
 
 ./configure --enable-debug --enable-64bit

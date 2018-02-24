@@ -23,7 +23,7 @@
     <disableChangeLog>false</disableChangeLog>
   </scm>
   <canRoam>true</canRoam>
-  <disabled>true</disabled>
+  <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
@@ -45,51 +45,32 @@
 set -e -v
 
 umask 0022
-export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/binary/infer/bin/:/var/lib/jenkins/.cargo/bin/
+export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/infer/bin/:/var/lib/jenkins/.cargo/bin/
 
 echo &quot;Cleanup previous build&quot;
 rm -rf obj-x86_64-unknown-linux-gnu reports/ /tmp/scan-build-*
-
-echo &quot;Cleanup&quot;
 ./mach clobber
-
-export MACH_NO_WRITE_TIMES=on
-cat &gt; .mozconfig &lt;&lt;EOF
-ac_add_options --enable-debug
-ac_add_options --disable-optimize
-
-
-#mk_add_options --disable-unified-compilation
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j20&quot;
-
-
-CXX=/var/lib/jenkins/workspace/update-infer/binary/facebook-clang-plugins/clang/install/bin/clang++
-CC=/var/lib/jenkins/workspace/update-infer/binary/facebook-clang-plugins/clang/install/bin/clang
-EOF
-
-echo &quot;Apply patches on top of the hg repo&quot;
-hg qpop -a
-hg qpush -a
+./mach configure &amp;&amp; ./mach build-backend --backend=CompileDB &amp;&amp; ./mach build pre-export &amp;&amp; ./mach build export
 
 echo &quot;Build using infer&quot;
-infer run -o ${JOB_NAME}/ --  make clean all 
+infer --keep-going --debug-level 2 --compilation-database obj-*/compile_commands.json
 
-! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/${JOB_NAME}/bugs.txt ${JOB_NAME}/bugs.txt`
+! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/${JOB_NAME}/bugs.txt infer-out/bugs.txt`
 if test -n &quot;$DIFF_RESULT&quot;; then
 	echo &quot;$DIFF_RESULT&quot;|mail -v -s &quot;${JOB_NAME} changes&quot; sylvestre@mozilla.com
 fi
 
 
-chmod o+rx $(find ${JOB_NAME}/ -type d)
-chmod -R o+r ${JOB_NAME}
-rsync -arv -R  ${JOB_NAME}/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
+#chmod o+rx $(find ${JOB_NAME}/ -type d)
+#chmod -R o+r ${JOB_NAME}
+#rsync -arv -R  ${JOB_NAME}/ sledru@people.mozilla.org:/home/sledru/public_html/reports/
 ./mach clobber
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>firefox-infer/bugs.txt</artifacts>
+      <artifacts>infer-out/bugs.txt</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>

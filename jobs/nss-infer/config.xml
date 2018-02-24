@@ -27,7 +27,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/binary/infer/bin/
+      <command>export PATH=$PATH:/var/lib/jenkins/workspace/update-infer/infer/bin/
 
 umask 0022
 
@@ -45,7 +45,7 @@ fi
 
 cd nss
 make nss_clean_all
-USE_64=1 infer -o ${JOB_NAME}/ -- make nss_build_all
+USE_64=1 infer --keep-going -o ${JOB_NAME}/ -- make nss_build_all
 
 ! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/nss/${JOB_NAME}/bugs.txt ${JOB_NAME}/bugs.txt`
 if test -n &quot;$DIFF_RESULT&quot;; then
