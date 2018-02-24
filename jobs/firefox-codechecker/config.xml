@@ -42,7 +42,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-
+set -e
 rm -rf codechecker-results
 
 cat &gt; .mozconfig &lt;&lt;EOF
@@ -59,7 +59,7 @@ cat &gt; skip.list &lt;&lt;EOF
 -*/mfbt/tests/*
 -*/dom/bindings/Test*
 EOF
-source ~/checker_env/bin/activate
+#source ~/checker_env/bin/activate
 export PATH=~/workspace/update-codechecker/build/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
 nohup bash ~/run-server-codechecker.sh &amp;
 cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
@@ -76,6 +76,15 @@ CodeChecker check -j 13 -b &quot;hg pull -u &amp;&amp; hg update -r default &amp
 CodeChecker store codechecker-results/ -n firefox_$(date &quot;+%Y%m%d%H%M&quot;) --url firefox
 </command>
     </hudson.tasks.Shell>
+    <hudson.plugins.build__timeout.BuildStepWithTimeout plugin="build-timeout@1.19">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>900</timeoutMinutes>
+      </strategy>
+      <buildStep class="hudson.tasks.BatchFile">
+        <command></command>
+      </buildStep>
+      <operationList class="empty-list"/>
+    </hudson.plugins.build__timeout.BuildStepWithTimeout>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
