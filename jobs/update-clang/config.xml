@@ -17,9 +17,8 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>CLANG_VERSION=7
-sudo /usr/bin/apt-get update
-sudo /usr/bin/apt-get --reinstall install clang-tidy-$CLANG_VERSION clang-$CLANG_VERSION lld-$CLANG_VERSION clang-tools-$CLANG_VERSION -y --force-yes</command>
+      <command>sudo /usr/bin/apt-get update
+sudo /usr/bin/apt-get --reinstall install clang-tidy clang lld clang-tools -t llvm-toolchain-stretch -y --force-yes</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

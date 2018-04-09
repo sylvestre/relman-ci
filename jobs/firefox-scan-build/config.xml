@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.3">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -36,7 +36,7 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 set -e -v
-CLANG_VERSION=6.0
+CLANG_VERSION=7
 umask 0022
 
 echo &quot;Cleanup previous build&quot;
@@ -80,7 +80,7 @@ rm -rf obj-x86_64-unknown-linux-gnu reports/fx-scan-build/</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.19">
+    <hudson.tasks.Mailer plugin="mailer@1.20">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

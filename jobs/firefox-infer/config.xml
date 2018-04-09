@@ -29,7 +29,7 @@
   <triggers>
     <jenkins.triggers.ReverseBuildTrigger>
       <spec></spec>
-      <upstreamProjects>update-infer, </upstreamProjects>
+      <upstreamProjects>update-infer,</upstreamProjects>
       <threshold>
         <name>SUCCESS</name>
         <ordinal>0</ordinal>
@@ -53,12 +53,16 @@ rm -rf obj-x86_64-unknown-linux-gnu reports/ /tmp/scan-build-*
 ./mach configure &amp;&amp; ./mach build-backend --backend=CompileDB &amp;&amp; ./mach build pre-export &amp;&amp; ./mach build export
 
 echo &quot;Build using infer&quot;
-infer --keep-going --debug-level 2 --compilation-database obj-*/compile_commands.json
 
-! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/infer-out/bugs.txt infer-out/bugs.txt`
-if test -n &quot;$DIFF_RESULT&quot;; then
-	echo &quot;$DIFF_RESULT&quot;|mail -v -s &quot;${JOB_NAME} changes&quot; sylvestre@mozilla.com
-fi
+infer capture  --reactive --compilation-database obj-x86_64-pc-linux-gnu/compile_commands.json 
+
+infer analyze --keep-going --reactive --changed-files-index index.txt
+infer reportdiff --report-current infer-out/report.json --report-previous ~/jobs/firefox-infer/lastSuccessful/archive/infer-out/report.json
+
+#! DIFF_RESULT=`diff -u ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/infer-out/bugs.txt infer-out/bugs.txt`
+#if test -n &quot;$DIFF_RESULT&quot;; then
+#	echo &quot;$DIFF_RESULT&quot;|mail -v -s &quot;${JOB_NAME} changes&quot; sylvestre@mozilla.com
+#fi
 
 
 #chmod o+rx $(find ${JOB_NAME}/ -type d)
@@ -70,7 +74,7 @@ fi
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>infer-out/bugs.txt</artifacts>
+      <artifacts>infer-out/bugs.txt, infer-out/differential/*.json, infer-out/report.json</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
