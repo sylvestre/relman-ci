@@ -1,14 +1,14 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.5.1">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.8.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>git@github.com:Ericsson/codechecker.git</url>
+        <url>https://github.com/Ericsson/codechecker.git</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -33,9 +33,11 @@
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-source ~/checker_env/bin/activate
+make venv
+pip install wheel
 pip install -r .ci/basic_python_requirements
-sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-6.0&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-6.0&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+pip install -r .ci/python_requirements_psql_psycopg2
+sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-7&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-7&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
 make package
 #kill $(ps faxw|grep &quot;CodeChecker server&quot;|grep python|awk &apos;{print $1}&apos;)
 #nohup bash ~/run-server-codechecker.sh &amp;
@@ -47,7 +49,7 @@ make package
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.20">
+    <hudson.tasks.Mailer plugin="mailer@1.21">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

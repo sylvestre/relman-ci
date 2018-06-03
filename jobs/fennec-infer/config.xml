@@ -74,7 +74,7 @@ export MOZ_DISABLE_PROGUARD=1
 
 #ac_add_options --enable-artifact-builds
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
 #HOST_CXX=/var/lib/jenkins/.mozbuild/android-ndk-r11b/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
 #HOST_CC=/var/lib/jenkins/.mozbuild/android-ndk-r11b/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc
 

@@ -1,10 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@1.59">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.3">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -20,7 +20,9 @@
   <triggers>
     <hudson.triggers.TimerTrigger>
       <spec>H 2 * * *
-H 14 * * *</spec>
+H 10 * * *
+H 16 * * *
+</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
@@ -31,7 +33,7 @@ H 14 * * *</spec>
 COV_JS=false
 
 echo &quot;Cleanup build&quot;
-rm -rf obj-x86_64-unknown-linux-gnu/  
+rm -rf obj-x86_64-pc-linux-gnu/  
 rm -rf obj-x86_64-pc-linux-gnu/
 rm -rf cov-int/ 
 rm -rf cov-build.tar.gz
@@ -44,7 +46,7 @@ rm -rf reports/
 cat &gt; .mozconfig &lt;&lt;EOF
 ac_add_options --enable-debug
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j2&quot;
 EOF
 
 
@@ -94,11 +96,18 @@ exit 0
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.19">
+    <hudson.tasks.Mailer plugin="mailer@1.21">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
   </publishers>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.19">
+      <strategy class="hudson.plugins.build_timeout.impl.NoActivityTimeOutStrategy">
+        <timeoutSecondsString>7200</timeoutSecondsString>
+      </strategy>
+      <operationList/>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
 </project>

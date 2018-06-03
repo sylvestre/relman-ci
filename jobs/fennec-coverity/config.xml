@@ -63,7 +63,7 @@ mk_add_options MOZ_OBJDIR=./objdir-frontend
 
 #ac_add_options --enable-artifact-builds
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
 EOF
 
 echo &quot;Apply patches on top of the hg repo&quot;

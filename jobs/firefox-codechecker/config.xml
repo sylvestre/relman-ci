@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
   <description></description>
@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.2">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.3">
     <source>http://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -48,7 +48,7 @@ rm -rf codechecker-results
 cat &gt; .mozconfig &lt;&lt;EOF
 ac_add_options --enable-debug
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
 mk_add_options AUTOCLOBBER=1
 EOF
 
@@ -60,6 +60,8 @@ cat &gt; skip.list &lt;&lt;EOF
 -*/dom/bindings/Test*
 EOF
 #source ~/checker_env/bin/activate
+source ~/workspace/update-codechecker/venv/bin/activate
+pip install psycopg2
 export PATH=~/workspace/update-codechecker/build/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
 nohup bash ~/run-server-codechecker.sh &amp;
 cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
@@ -76,15 +78,6 @@ CodeChecker check -j 13 -b &quot;hg pull -u &amp;&amp; hg update -r default &amp
 CodeChecker store codechecker-results/ -n firefox_$(date &quot;+%Y%m%d%H%M&quot;) --url firefox
 </command>
     </hudson.tasks.Shell>
-    <hudson.plugins.build__timeout.BuildStepWithTimeout plugin="build-timeout@1.19">
-      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
-        <timeoutMinutes>900</timeoutMinutes>
-      </strategy>
-      <buildStep class="hudson.tasks.BatchFile">
-        <command></command>
-      </buildStep>
-      <operationList class="empty-list"/>
-    </hudson.plugins.build__timeout.BuildStepWithTimeout>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>

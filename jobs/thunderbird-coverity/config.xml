@@ -44,7 +44,7 @@ ac_add_options --enable-application=mail
 ac_add_options --enable-calendar
 
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j24&quot;
+mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
 EOF
 
 echo &quot;Apply patches on top of the hg repo&quot;

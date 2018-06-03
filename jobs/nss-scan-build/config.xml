@@ -4,15 +4,24 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.scm.NullSCM"/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.3">
+    <source>https://hg.mozilla.org/projects/nss</source>
+    <modules></modules>
+    <revisionType>BRANCH</revisionType>
+    <revision>nss-hg-not-used</revision>
+    <clean>false</clean>
+    <credentialsId></credentialsId>
+    <disableChangeLog>false</disableChangeLog>
+  </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <hudson.triggers.TimerTrigger>
+    <hudson.triggers.SCMTrigger>
       <spec>@daily</spec>
-    </hudson.triggers.TimerTrigger>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
@@ -32,7 +41,7 @@ fi
 
 cd nss
 make nss_clean_all
-USE_64=1 scan-build-7.0  -analyzer-config stable-report-filename=true make nss_build_all
+USE_64=1 scan-build-7  -analyzer-config stable-report-filename=true make nss_build_all
 
  
 echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;

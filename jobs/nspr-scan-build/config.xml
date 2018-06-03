@@ -27,9 +27,10 @@
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <hudson.triggers.TimerTrigger>
+    <hudson.triggers.SCMTrigger>
       <spec>@daily</spec>
-    </hudson.triggers.TimerTrigger>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
@@ -38,7 +39,7 @@
 
 
 ./configure --enable-debug --enable-64bit
-scan-build-5.0 -enable-checker optin.performance.Padding -analyzer-config stable-report-filename=true -v make
+scan-build-7 -enable-checker optin.performance.Padding -analyzer-config stable-report-filename=true -v make
 
 echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
 SCAN_BUILD_DIR=$(ls -1d /tmp/scan-build-*|tail -1)
