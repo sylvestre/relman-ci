@@ -1,0 +1,1230 @@
+{
+  "version" : 1,
+  "name" : "Firefox",
+  "description" : "",
+  "forceDeleteComponents" : false,
+  "components" : [ {
+    "name" : "Other",
+    "defaultOwner" : null,
+    "rbacSettings" : [ {
+      "groupOrUser" : "group",
+      "principalName" : "Users",
+      "roles" : [ "developer" ]
+    } ]
+  }, {
+    "name" : "accessible",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "browser",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "build",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "cairo",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "caps",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "chrome",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "config",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "db",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "devtools",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "docshell",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-abort",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-animation",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-asmjscache",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-audiochannel",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-base",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-battery",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-bindings",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-broadcastchannel",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-browser-element",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-cache",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-canvas",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-chrome-webidl",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-clients",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-commandhandler",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-console",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-credentialmanagement",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-crypto",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-encoding",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-events",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-fetch",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-file",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-filehandle",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-filesystem",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-flex",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-gamepad",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-geolocation",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-grid",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-html",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-imptests",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-indexedDB",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-interfaces",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-ipc",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-jsurl",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-locales",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-localstorage",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-manifest",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-mathml",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-media",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-messagechannel",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-midi",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-network",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-notification",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-offline",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-payments",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-performance",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-permission",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-plugins",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-power",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-presentation",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-prio",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-promise",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-push",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-quota",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-reporting",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-res",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-script",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-security",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-serviceworkers",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-simpledb",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-smil",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-storage",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-svg",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-system",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-tests",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-u2f",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-url",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-vr",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-webauthn",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-webbrowserpersist",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-webgpu",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-webidl",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-websocket",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-workers",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-worklet",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-xbl",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-xhr",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-xml",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-xslt",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "dom-xul",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "editor",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "embedding",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "extensions",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "gfx",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "graphite2",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "hal",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "harfbuzz",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "icu",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "image",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "intl",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "ipc",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "js",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "layout",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-audioipc",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-ffvpx",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-gmp-clearkey",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-kiss_fft",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libaom",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libcubeb",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libdav1d",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libjpeg",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libmkv",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libnestegg",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libogg",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libopus",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libpng",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libsoundtouch",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libspeex_resampler",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libtheora",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libtremor",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libvorbis",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libvpx",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libwebp",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-libyuv",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-mp4parse-rust",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-mtransport",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-openmax_dl",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-openmax_il",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-psshparser",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "media-webrtc",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "memory",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "mfbt",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "mobile",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "modules",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "mozglue",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "netwerk",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "nsprpub",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "obj",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "other-licenses",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "parser",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "security",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "services",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "servo",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "skia",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "startupcache",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "storage",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "testing",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "third_party",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-actors",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-components",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-content",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-crashreporter",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-forgetaboutsite",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-library",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-locales",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-modules",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-mozapps",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-pluginproblem",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-profile",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-recordreplay",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-system",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-themes",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "toolkit-xre",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "tools",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "updater",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "uriloader",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "view",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "widget",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "xpcom",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  }, {
+    "name" : "xpfe",
+    "defaultOwner" : null,
+    "rbacSettings" : [ ]
+  } ],
+  "fileRules" : [ {
+    "componentName" : "updater",
+    "pathPattern" : ".*/toolkit/mozapps/update/.*"
+  }, {
+    "componentName" : "graphite2",
+    "pathPattern" : ".*/gfx/graphite2/.*"
+  }, {
+    "componentName" : "skia",
+    "pathPattern" : ".*/gfx/skia/.*"
+  }, {
+    "componentName" : "cairo",
+    "pathPattern" : ".*/gfx/cairo/.*"
+  }, {
+    "componentName" : "accessible",
+    "pathPattern" : ".*/accessible/.*"
+  }, {
+    "componentName" : "gfx",
+    "pathPattern" : ".*/gfx/.*"
+  }, {
+    "componentName" : "js",
+    "pathPattern" : ".*/js/.*"
+  }, {
+    "componentName" : "editor",
+    "pathPattern" : ".*/editor/.*"
+  }, {
+    "componentName" : "obj",
+    "pathPattern" : ".*/obj-firefox/.*"
+  }, {
+    "componentName" : "netwerk",
+    "pathPattern" : ".*/netwerk/.*"
+  }, {
+    "componentName" : "icu",
+    "pathPattern" : ".*/intl/icu/.*"
+  }, {
+    "componentName" : "layout",
+    "pathPattern" : ".*/layout/.*"
+  }, {
+    "componentName" : "xpcom",
+    "pathPattern" : ".*/xpcom/.*"
+  }, {
+    "componentName" : "testing",
+    "pathPattern" : ".*/testing/.*"
+  }, {
+    "componentName" : "security",
+    "pathPattern" : ".*/security/.*"
+  }, {
+    "componentName" : "media-ffvpx",
+    "pathPattern" : ".*/media/ffvpx/.*"
+  }, {
+    "componentName" : "media-libogg",
+    "pathPattern" : ".*/media/libogg/.*"
+  }, {
+    "componentName" : "media-libvpx",
+    "pathPattern" : ".*/media/libvpx/.*"
+  }, {
+    "componentName" : "media-libyuv",
+    "pathPattern" : ".*/media/libyuv/.*"
+  }, {
+    "componentName" : "media-kiss_fft",
+    "pathPattern" : ".*/media/kiss_fft/.*"
+  }, {
+    "componentName" : "media-libtremor",
+    "pathPattern" : ".*/media/libtremor/.*"
+  }, {
+    "componentName" : "media-openmax_il",
+    "pathPattern" : ".*/media/openmax_il/.*"
+  }, {
+    "componentName" : "media-libnestegg",
+    "pathPattern" : ".*/media/libnestegg/.*"
+  }, {
+    "componentName" : "media-psshparser",
+    "pathPattern" : ".*/media/psshparser/.*"
+  }, {
+    "componentName" : "media-libopus",
+    "pathPattern" : ".*/media/libopus/.*"
+  }, {
+    "componentName" : "media-webrtc",
+    "pathPattern" : ".*/media/webrtc/.*"
+  }, {
+    "componentName" : "media-libaom",
+    "pathPattern" : ".*/media/libaom/.*"
+  }, {
+    "componentName" : "media-mtransport",
+    "pathPattern" : ".*/media/mtransport/.*"
+  }, {
+    "componentName" : "media-libmkv",
+    "pathPattern" : ".*/media/libmkv/.*"
+  }, {
+    "componentName" : "media-libvorbis",
+    "pathPattern" : ".*/media/libvorbis/.*"
+  }, {
+    "componentName" : "media-libpng",
+    "pathPattern" : ".*/media/libpng/.*"
+  }, {
+    "componentName" : "media-libspeex_resampler",
+    "pathPattern" : ".*/media/libspeex_resampler/.*"
+  }, {
+    "componentName" : "media-libjpeg",
+    "pathPattern" : ".*/media/libjpeg/.*"
+  }, {
+    "componentName" : "media-gmp-clearkey",
+    "pathPattern" : ".*/media/gmp-clearkey/.*"
+  }, {
+    "componentName" : "media-openmax_dl",
+    "pathPattern" : ".*/media/openmax_dl/.*"
+  }, {
+    "componentName" : "media-mp4parse-rust",
+    "pathPattern" : ".*/media/mp4parse-rust/.*"
+  }, {
+    "componentName" : "media-libtheora",
+    "pathPattern" : ".*/media/libtheora/.*"
+  }, {
+    "componentName" : "media-libdav1d",
+    "pathPattern" : ".*/media/libdav1d/.*"
+  }, {
+    "componentName" : "media-libwebp",
+    "pathPattern" : ".*/media/libwebp/.*"
+  }, {
+    "componentName" : "media-audioipc",
+    "pathPattern" : ".*/media/audioipc/.*"
+  }, {
+    "componentName" : "media-libcubeb",
+    "pathPattern" : ".*/media/libcubeb/.*"
+  }, {
+    "componentName" : "media-libsoundtouch",
+    "pathPattern" : ".*/media/libsoundtouch/.*"
+  }, {
+    "componentName" : "dom-res",
+    "pathPattern" : ".*/dom/res/.*"
+  }, {
+    "componentName" : "dom-plugins",
+    "pathPattern" : ".*/dom/plugins/.*"
+  }, {
+    "componentName" : "dom-mathml",
+    "pathPattern" : ".*/dom/mathml/.*"
+  }, {
+    "componentName" : "dom-encoding",
+    "pathPattern" : ".*/dom/encoding/.*"
+  }, {
+    "componentName" : "dom-system",
+    "pathPattern" : ".*/dom/system/.*"
+  }, {
+    "componentName" : "dom-worklet",
+    "pathPattern" : ".*/dom/worklet/.*"
+  }, {
+    "componentName" : "dom-smil",
+    "pathPattern" : ".*/dom/smil/.*"
+  }, {
+    "componentName" : "dom-flex",
+    "pathPattern" : ".*/dom/flex/.*"
+  }, {
+    "componentName" : "dom-localstorage",
+    "pathPattern" : ".*/dom/localstorage/.*"
+  }, {
+    "componentName" : "dom-xbl",
+    "pathPattern" : ".*/dom/xbl/.*"
+  }, {
+    "componentName" : "dom-commandhandler",
+    "pathPattern" : ".*/dom/commandhandler/.*"
+  }, {
+    "componentName" : "dom-console",
+    "pathPattern" : ".*/dom/console/.*"
+  }, {
+    "componentName" : "dom-indexedDB",
+    "pathPattern" : ".*/dom/indexedDB/.*"
+  }, {
+    "componentName" : "dom-media",
+    "pathPattern" : ".*/dom/media/.*"
+  }, {
+    "componentName" : "dom-script",
+    "pathPattern" : ".*/dom/script/.*"
+  }, {
+    "componentName" : "dom-security",
+    "pathPattern" : ".*/dom/security/.*"
+  }, {
+    "componentName" : "dom-notification",
+    "pathPattern" : ".*/dom/notification/.*"
+  }, {
+    "componentName" : "dom-xul",
+    "pathPattern" : ".*/dom/xul/.*"
+  }, {
+    "componentName" : "dom-websocket",
+    "pathPattern" : ".*/dom/websocket/.*"
+  }, {
+    "componentName" : "dom-offline",
+    "pathPattern" : ".*/dom/offline/.*"
+  }, {
+    "componentName" : "dom-vr",
+    "pathPattern" : ".*/dom/vr/.*"
+  }, {
+    "componentName" : "dom-jsurl",
+    "pathPattern" : ".*/dom/jsurl/.*"
+  }, {
+    "componentName" : "dom-url",
+    "pathPattern" : ".*/dom/url/.*"
+  }, {
+    "componentName" : "dom-html",
+    "pathPattern" : ".*/dom/html/.*"
+  }, {
+    "componentName" : "dom-crypto",
+    "pathPattern" : ".*/dom/crypto/.*"
+  }, {
+    "componentName" : "dom-u2f",
+    "pathPattern" : ".*/dom/u2f/.*"
+  }, {
+    "componentName" : "dom-power",
+    "pathPattern" : ".*/dom/power/.*"
+  }, {
+    "componentName" : "dom-audiochannel",
+    "pathPattern" : ".*/dom/audiochannel/.*"
+  }, {
+    "componentName" : "dom-credentialmanagement",
+    "pathPattern" : ".*/dom/credentialmanagement/.*"
+  }, {
+    "componentName" : "dom-bindings",
+    "pathPattern" : ".*/dom/bindings/.*"
+  }, {
+    "componentName" : "dom-webbrowserpersist",
+    "pathPattern" : ".*/dom/webbrowserpersist/.*"
+  }, {
+    "componentName" : "dom-animation",
+    "pathPattern" : ".*/dom/animation/.*"
+  }, {
+    "componentName" : "dom-chrome-webidl",
+    "pathPattern" : ".*/dom/chrome-webidl/.*"
+  }, {
+    "componentName" : "dom-reporting",
+    "pathPattern" : ".*/dom/reporting/.*"
+  }, {
+    "componentName" : "dom-presentation",
+    "pathPattern" : ".*/dom/presentation/.*"
+  }, {
+    "componentName" : "dom-events",
+    "pathPattern" : ".*/dom/events/.*"
+  }, {
+    "componentName" : "dom-xml",
+    "pathPattern" : ".*/dom/xml/.*"
+  }, {
+    "componentName" : "dom-broadcastchannel",
+    "pathPattern" : ".*/dom/broadcastchannel/.*"
+  }, {
+    "componentName" : "dom-xhr",
+    "pathPattern" : ".*/dom/xhr/.*"
+  }, {
+    "componentName" : "dom-promise",
+    "pathPattern" : ".*/dom/promise/.*"
+  }, {
+    "componentName" : "dom-webgpu",
+    "pathPattern" : ".*/dom/webgpu/.*"
+  }, {
+    "componentName" : "dom-storage",
+    "pathPattern" : ".*/dom/storage/.*"
+  }, {
+    "componentName" : "dom-network",
+    "pathPattern" : ".*/dom/network/.*"
+  }, {
+    "componentName" : "dom-canvas",
+    "pathPattern" : ".*/dom/canvas/.*"
+  }, {
+    "componentName" : "dom-filehandle",
+    "pathPattern" : ".*/dom/filehandle/.*"
+  }, {
+    "componentName" : "dom-browser-element",
+    "pathPattern" : ".*/dom/browser-element/.*"
+  }, {
+    "componentName" : "dom-payments",
+    "pathPattern" : ".*/dom/payments/.*"
+  }, {
+    "componentName" : "dom-prio",
+    "pathPattern" : ".*/dom/prio/.*"
+  }, {
+    "componentName" : "dom-locales",
+    "pathPattern" : ".*/dom/locales/.*"
+  }, {
+    "componentName" : "dom-push",
+    "pathPattern" : ".*/dom/push/.*"
+  }, {
+    "componentName" : "dom-fetch",
+    "pathPattern" : ".*/dom/fetch/.*"
+  }, {
+    "componentName" : "dom-gamepad",
+    "pathPattern" : ".*/dom/gamepad/.*"
+  }, {
+    "componentName" : "dom-cache",
+    "pathPattern" : ".*/dom/cache/.*"
+  }, {
+    "componentName" : "dom-interfaces",
+    "pathPattern" : ".*/dom/interfaces/.*"
+  }, {
+    "componentName" : "dom-ipc",
+    "pathPattern" : ".*/dom/ipc/.*"
+  }, {
+    "componentName" : "dom-midi",
+    "pathPattern" : ".*/dom/midi/.*"
+  }, {
+    "componentName" : "dom-serviceworkers",
+    "pathPattern" : ".*/dom/serviceworkers/.*"
+  }, {
+    "componentName" : "dom-tests",
+    "pathPattern" : ".*/dom/tests/.*"
+  }, {
+    "componentName" : "dom-imptests",
+    "pathPattern" : ".*/dom/imptests/.*"
+  }, {
+    "componentName" : "dom-webauthn",
+    "pathPattern" : ".*/dom/webauthn/.*"
+  }, {
+    "componentName" : "dom-messagechannel",
+    "pathPattern" : ".*/dom/messagechannel/.*"
+  }, {
+    "componentName" : "dom-simpledb",
+    "pathPattern" : ".*/dom/simpledb/.*"
+  }, {
+    "componentName" : "dom-filesystem",
+    "pathPattern" : ".*/dom/filesystem/.*"
+  }, {
+    "componentName" : "dom-quota",
+    "pathPattern" : ".*/dom/quota/.*"
+  }, {
+    "componentName" : "dom-workers",
+    "pathPattern" : ".*/dom/workers/.*"
+  }, {
+    "componentName" : "dom-file",
+    "pathPattern" : ".*/dom/file/.*"
+  }, {
+    "componentName" : "dom-clients",
+    "pathPattern" : ".*/dom/clients/.*"
+  }, {
+    "componentName" : "dom-asmjscache",
+    "pathPattern" : ".*/dom/asmjscache/.*"
+  }, {
+    "componentName" : "dom-grid",
+    "pathPattern" : ".*/dom/grid/.*"
+  }, {
+    "componentName" : "dom-geolocation",
+    "pathPattern" : ".*/dom/geolocation/.*"
+  }, {
+    "componentName" : "dom-manifest",
+    "pathPattern" : ".*/dom/manifest/.*"
+  }, {
+    "componentName" : "dom-webidl",
+    "pathPattern" : ".*/dom/webidl/.*"
+  }, {
+    "componentName" : "dom-abort",
+    "pathPattern" : ".*/dom/abort/.*"
+  }, {
+    "componentName" : "dom-xslt",
+    "pathPattern" : ".*/dom/xslt/.*"
+  }, {
+    "componentName" : "dom-permission",
+    "pathPattern" : ".*/dom/permission/.*"
+  }, {
+    "componentName" : "dom-battery",
+    "pathPattern" : ".*/dom/battery/.*"
+  }, {
+    "componentName" : "dom-performance",
+    "pathPattern" : ".*/dom/performance/.*"
+  }, {
+    "componentName" : "dom-svg",
+    "pathPattern" : ".*/dom/svg/.*"
+  }, {
+    "componentName" : "dom-base",
+    "pathPattern" : ".*/dom/base/.*"
+  }, {
+    "componentName" : "accessible",
+    "pathPattern" : ".*/accessible/.*"
+  }, {
+    "componentName" : "browser",
+    "pathPattern" : ".*/browser/.*"
+  }, {
+    "componentName" : "build",
+    "pathPattern" : ".*/build/.*"
+  }, {
+    "componentName" : "caps",
+    "pathPattern" : ".*/caps/.*"
+  }, {
+    "componentName" : "chrome",
+    "pathPattern" : ".*/chrome/.*"
+  }, {
+    "componentName" : "config",
+    "pathPattern" : ".*/config/.*"
+  }, {
+    "componentName" : "db",
+    "pathPattern" : ".*/db/.*"
+  }, {
+    "componentName" : "devtools",
+    "pathPattern" : ".*/devtools/.*"
+  }, {
+    "componentName" : "docshell",
+    "pathPattern" : ".*/docshell/.*"
+  }, {
+    "componentName" : "dom",
+    "pathPattern" : ".*/dom/.*"
+  }, {
+    "componentName" : "editor",
+    "pathPattern" : ".*/editor/.*"
+  }, {
+    "componentName" : "embedding",
+    "pathPattern" : ".*/embedding/.*"
+  }, {
+    "componentName" : "extensions",
+    "pathPattern" : ".*/extensions/.*"
+  }, {
+    "componentName" : "gfx",
+    "pathPattern" : ".*/gfx/.*"
+  }, {
+    "componentName" : "hal",
+    "pathPattern" : ".*/hal/.*"
+  }, {
+    "componentName" : "image",
+    "pathPattern" : ".*/image/.*"
+  }, {
+    "componentName" : "intl",
+    "pathPattern" : ".*/intl/.*"
+  }, {
+    "componentName" : "ipc",
+    "pathPattern" : ".*/ipc/.*"
+  }, {
+    "componentName" : "js",
+    "pathPattern" : ".*/js/.*"
+  }, {
+    "componentName" : "layout",
+    "pathPattern" : ".*/layout/.*"
+  }, {
+    "componentName" : "memory",
+    "pathPattern" : ".*/memory/.*"
+  }, {
+    "componentName" : "mfbt",
+    "pathPattern" : ".*/mfbt/.*"
+  }, {
+    "componentName" : "mobile",
+    "pathPattern" : ".*/mobile/.*"
+  }, {
+    "componentName" : "modules",
+    "pathPattern" : ".*/modules/.*"
+  }, {
+    "componentName" : "mozglue",
+    "pathPattern" : ".*/mozglue/.*"
+  }, {
+    "componentName" : "netwerk",
+    "pathPattern" : ".*/netwerk/.*"
+  }, {
+    "componentName" : "nsprpub",
+    "pathPattern" : ".*/nsprpub/.*"
+  }, {
+    "componentName" : "other-licenses",
+    "pathPattern" : ".*/other-licenses/.*"
+  }, {
+    "componentName" : "parser",
+    "pathPattern" : ".*/parser/.*"
+  }, {
+    "componentName" : "security",
+    "pathPattern" : ".*/security/.*"
+  }, {
+    "componentName" : "services",
+    "pathPattern" : ".*/services/.*"
+  }, {
+    "componentName" : "servo",
+    "pathPattern" : ".*/servo/.*"
+  }, {
+    "componentName" : "startupcache",
+    "pathPattern" : ".*/startupcache/.*"
+  }, {
+    "componentName" : "storage",
+    "pathPattern" : ".*/storage/.*"
+  }, {
+    "componentName" : "testing",
+    "pathPattern" : ".*/testing/.*"
+  }, {
+    "componentName" : "third_party",
+    "pathPattern" : ".*/third_party/.*"
+  }, {
+    "componentName" : "tools",
+    "pathPattern" : ".*/tools/.*"
+  }, {
+    "componentName" : "uriloader",
+    "pathPattern" : ".*/uriloader/.*"
+  }, {
+    "componentName" : "view",
+    "pathPattern" : ".*/view/.*"
+  }, {
+    "componentName" : "widget",
+    "pathPattern" : ".*/widget/.*"
+  }, {
+    "componentName" : "xpcom",
+    "pathPattern" : ".*/xpcom/.*"
+  }, {
+    "componentName" : "xpfe",
+    "pathPattern" : ".*/xpfe/.*"
+  }, {
+    "componentName" : "toolkit-profile",
+    "pathPattern" : ".*/profile/.*"
+  }, {
+    "componentName" : "toolkit-system",
+    "pathPattern" : ".*/system/.*"
+  }, {
+    "componentName" : "toolkit-themes",
+    "pathPattern" : ".*/themes/.*"
+  }, {
+    "componentName" : "toolkit-pluginproblem",
+    "pathPattern" : ".*/pluginproblem/.*"
+  }, {
+    "componentName" : "toolkit-components",
+    "pathPattern" : ".*/components/.*"
+  }, {
+    "componentName" : "toolkit-actors",
+    "pathPattern" : ".*/actors/.*"
+  }, {
+    "componentName" : "toolkit-library",
+    "pathPattern" : ".*/library/.*"
+  }, {
+    "componentName" : "toolkit-content",
+    "pathPattern" : ".*/content/.*"
+  }, {
+    "componentName" : "toolkit-crashreporter",
+    "pathPattern" : ".*/crashreporter/.*"
+  }, {
+    "componentName" : "toolkit-forgetaboutsite",
+    "pathPattern" : ".*/forgetaboutsite/.*"
+  }, {
+    "componentName" : "toolkit-modules",
+    "pathPattern" : ".*/modules/.*"
+  }, {
+    "componentName" : "toolkit-recordreplay",
+    "pathPattern" : ".*/recordreplay/.*"
+  }, {
+    "componentName" : "toolkit-locales",
+    "pathPattern" : ".*/locales/.*"
+  }, {
+    "componentName" : "toolkit-mozapps",
+    "pathPattern" : ".*/mozapps/.*"
+  }, {
+    "componentName" : "toolkit-xre",
+    "pathPattern" : ".*/xre/.*"
+  } ]
+}
