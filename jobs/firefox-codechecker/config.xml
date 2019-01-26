@@ -13,8 +13,8 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.3">
-    <source>http://hg.mozilla.org/mozilla-central/</source>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
+    <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
     <revision>default</revision>
@@ -29,7 +29,7 @@
   <triggers>
     <jenkins.triggers.ReverseBuildTrigger>
       <spec></spec>
-      <upstreamProjects>update-codechecker,</upstreamProjects>
+      <upstreamProjects>update-codechecker</upstreamProjects>
       <threshold>
         <name>SUCCESS</name>
         <ordinal>0</ordinal>
@@ -42,18 +42,21 @@
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-set -e
+set -e -v
 rm -rf codechecker-results
+rm -rf obj-firefox/
 
 cat &gt; .mozconfig &lt;&lt;EOF
 ac_add_options --enable-debug
 
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
 mk_add_options AUTOCLOBBER=1
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-firefox
 EOF
+./mach clobber
 
-
-cat &gt; skip.list &lt;&lt;EOF
+awk &apos;{print &quot;-*&quot;$1&quot;*&quot;}&apos;  tools/rewriting/ThirdPartyPaths.txt &gt; skip.list
+cat &gt;&gt; skip.list &lt;&lt;EOF
 -/usr/*
 -*/xpcom/tests/*
 -*/mfbt/tests/*
@@ -61,6 +64,7 @@ cat &gt; skip.list &lt;&lt;EOF
 EOF
 #source ~/checker_env/bin/activate
 source ~/workspace/update-codechecker/venv/bin/activate
+pip install thrift==0.11.0
 pip install psycopg2
 export PATH=~/workspace/update-codechecker/build/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
 nohup bash ~/run-server-codechecker.sh &amp;
@@ -71,11 +75,18 @@ cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
 
 #CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
 
-CHECKERS=$(CodeChecker checkers |awk &apos;{print &quot;--enable &quot; $1}&apos;|grep -v -E &apos;(google-readability-todo|^android-|hicpp-no-assembler|fuchsia-|^debug.)&apos;)
+CHECKERS=$(CodeChecker checkers |awk &apos;{print &quot;--enable &quot; $1}&apos;|grep -v -E &apos;(google-readability-todo|android-|hicpp-no-assembler|fuchsia-|debug\.)&apos;)
+echo $CHECKERS
 
-
-CodeChecker check -j 13 -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 23&quot; -o codechecker-results $CHECKERS --timeout 120
+./mach configure
+./mach build pre-export export
+./mach build-backend -b CompileDB
+#CodeChecker check --verbose debug -j 13 -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 23&quot; -o codechecker-results $CHECKERS --timeout 120 --skip skip.list
+#--verbose debug
+CodeChecker check  -j 13 --logfile obj-firefox/compile_commands.json -o codechecker-results $CHECKERS --timeout 120 --skip skip.list
 CodeChecker store codechecker-results/ -n firefox_$(date &quot;+%Y%m%d%H%M&quot;) --url firefox
+#rm -rf obj-x86_64-pc-linux-gnu/
+rm -rf obj-firefox/
 </command>
     </hudson.tasks.Shell>
   </builders>

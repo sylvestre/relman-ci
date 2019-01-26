@@ -3,8 +3,17 @@
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.3">
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>3</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
     <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -20,7 +29,7 @@
   <triggers>
     <jenkins.triggers.ReverseBuildTrigger>
       <spec></spec>
-      <upstreamProjects>update-clang,</upstreamProjects>
+      <upstreamProjects>update-clang</upstreamProjects>
       <threshold>
         <name>SUCCESS</name>
         <ordinal>0</ordinal>
@@ -36,8 +45,8 @@
 
 set -e
 
-CLANG_VERSION=7
 umask 0022
+
 
 echo &quot;Cleanup previous build&quot;
 rm -rf rm -rf obj-x86_64-unknown-linux-gnu
@@ -53,20 +62,26 @@ export CXX=clang++-$CLANG_VERSION
 ac_add_options --enable-debug
 # --disable-unified-compilation
 ac_add_options --enable-warnings-as-errors 
-export CXXFLAGS=&quot;-Wno-error=pessimizing-move&quot;
+export CXXFLAGS=&quot;-Wno-error=pessimizing-move -Wlarge-by-value-copy=512&quot;
 
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j14&quot;
 EOF
 
 export PATH=$PATH:/var/lib/jenkins/.cargo/bin/
+
+echo &quot;Updating rust (just in case)&quot;
+rustup update
+rustup component add rustfmt
+cargo install cbindgen --force
 echo &quot;Build using clang $CLANG_VERSION&quot;
-./mach --log-no-times build -v  
+./mach --log-no-times build 
+#-v  
 
 rm -rf obj-* reports/fx-scan-build/</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.66">
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@5.0.0">
       <healthy></healthy>
       <unHealthy></unHealthy>
       <thresholdLimit>low</thresholdLimit>
@@ -108,7 +123,7 @@ rm -rf obj-* reports/fx-scan-build/</command>
         </hudson.plugins.warnings.ConsoleParser>
       </consoleParsers>
     </hudson.plugins.warnings.WarningsPublisher>
-    <hudson.tasks.Mailer plugin="mailer@1.21">
+    <hudson.tasks.Mailer plugin="mailer@1.23">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

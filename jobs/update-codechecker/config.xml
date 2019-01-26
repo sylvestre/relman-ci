@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.8.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -37,7 +37,8 @@ make venv
 pip install wheel
 pip install -r .ci/basic_python_requirements
 pip install -r .ci/python_requirements_psql_psycopg2
-sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-7&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-7&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+pip install thrift==0.11.0
+sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-8&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-8&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
 make package
 #kill $(ps faxw|grep &quot;CodeChecker server&quot;|grep python|awk &apos;{print $1}&apos;)
 #nohup bash ~/run-server-codechecker.sh &amp;
@@ -49,7 +50,7 @@ make package
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.21">
+    <hudson.tasks.Mailer plugin="mailer@1.22">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

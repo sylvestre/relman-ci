@@ -1,18 +1,19 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.1">
-    <source>http://hg.mozilla.org/comm-central/</source>
-    <modules></modules>
-    <revisionType>BRANCH</revisionType>
-    <revision>default</revision>
-    <clean>false</clean>
-    <credentialsId></credentialsId>
-    <disableChangeLog>false</disableChangeLog>
-  </scm>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>4</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -26,7 +27,28 @@
   <builders>
     <hudson.tasks.Shell>
       <command>set -e 
-export PATH=$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin
+cd ~jenkins/
+
+cat &gt; stretch/root/run-thunderbird.sh &lt;&lt;GLOBALEOF
+set -v
+if test ! -d /root/thunderbird-coverity; then
+hg clone https://hg.mozilla.org/mozilla-central/ /root/thunderbird-coverity
+fi
+
+cd /root/thunderbird-coverity
+hg pull -u  https://hg.mozilla.org/mozilla-central/
+
+if test ! -d comm; then
+    hg clone https://hg.mozilla.org/comm-central comm/
+else
+    cd comm 
+    hg pull https://hg.mozilla.org/comm-central 
+    hg update
+    cd ..
+fi
+
+export PATH=\$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin
+cargo install cbindgen
 echo &quot;Cleanup previous build&quot;
 rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/ obj-x86_64-pc-linux-gnu
 
@@ -36,73 +58,54 @@ rm -rf reports/
 python client.py checkout
 
 echo &quot;Cleanup&quot;
-./mozilla/mach clobber
+./mach clobber
 
-cat &gt; .mozconfig &lt;&lt;EOF
-ac_add_options --enable-debug
-ac_add_options --enable-application=mail
-ac_add_options --enable-calendar
+cat .mozconfig
 
+cov-configure --gcc
+cov-configure  --comptype clangcc --compiler clang-5.0
 
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
-EOF
+#--xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
 
-echo &quot;Apply patches on top of the hg repo&quot;
-hg qpop -a
-hg qpush -a
+# Run the configure separatly to avoid issues detection here
+./mach  --log-no-times configure
 
-cov-configure --gcc --xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
+echo &quot;Rebuild all without coverity&quot;
+./mach --log-no-times build -v
 
-echo &quot;Rebuild all&quot;
-cov-build --dir cov-int ./mozilla/mach --log-no-times build -v
+echo &quot;Touch all tb files to retrigger the build&quot;
+touch \$(find comm/ -type f -iname &apos;*.cpp&apos; -o -iname &apos;*.c&apos;)
+
+echo &quot;build only tb files using coverity&quot;
+cov-build --dir cov-int ./mach --log-no-times build -v
 
 tar zcvf cov-build.tar.gz cov-int/
 
-minimumsize=120000
-actualsize=$(du -k cov-build.tar.gz | cut -f 1)
-if [ $actualsize -ge $minimumsize ]; then
+minimumsize=100000
+actualsize=\$(du -k cov-build.tar.gz | cut -f 1)
+if [ \$actualsize -ge \$minimumsize ]; then
         sh /opt/upload-to-coverity.sh
 else
-	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	echo &quot;Unexpected filesize. Should be at least \$minimumsize (found \$actualize)&quot;
 	exit 1
 fi
 
 
 #cd ..
-rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/ obj-x86_64-pc-linux-gnu
+#rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/ obj-x86_64-pc-linux-gnu
 
 exit 0
+GLOBALEOF
 
 
-# old method, after ./mozilla/mach 
+chmod +x stretch/root/run-thunderbird.sh
 
-echo &quot;Only rebuild tb and not fx&quot;
-cd obj-x86_64-*-linux-gnu
-make export
-make
-cov-configure --gcc --xml-option=skip_file:&quot;/tmp/*&quot;
-
-cat &gt; rebuild.sh &lt;&lt;EOF
-#!/bin/bash
-set -e
-export COMPS=CXX=/usr/bin/g++ CC=/usr/bin/gcc
-cd mailnews/&amp;&amp; make clean all \$COMPS &amp;&amp; cd -
-cd calendar/lightning/ &amp;&amp; make clean &amp;&amp; cd -
-cd calendar/libical &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
-cd calendar/base/backend/libical/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
-cd calendar/lightning/ &amp;&amp; make all \$COMPS &amp;&amp; cd -
-cd db/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
-cd ldap/xpcom/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
-cd mail/ &amp;&amp; make clean all \$COMPS &amp;&amp; cd -
-EOF
-
-chmod +x rebuild.sh
-
-cov-build --dir cov-int $(pwd)/rebuild.sh</command>
+sudo chroot ~/stretch/ ./root/run-thunderbird.sh
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.20">
+    <hudson.tasks.Mailer plugin="mailer@1.22">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
   <description></description>
@@ -13,15 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.1">
-    <source>http://hg.mozilla.org/mozilla-central/</source>
-    <modules></modules>
-    <revisionType>BRANCH</revisionType>
-    <revision>default</revision>
-    <clean>false</clean>
-    <credentialsId></credentialsId>
-    <disableChangeLog>false</disableChangeLog>
-  </scm>
+  <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -34,7 +26,17 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>set -e 
+      <command>cd ~jenkins/
+
+cat &gt; stretch/root/run-fennec.sh &lt;&lt;GLOBALEOF
+set -e 
+set -v
+if test ! -d /root/fennec-coverity; then
+hg clone https://hg.mozilla.org/mozilla-central/ /root/fennec-coverity
+fi
+cd /root/fennec-coverity
+hg pull https://hg.mozilla.org/mozilla-central/ -u
+
 rm -rf obj-arm-linux-androideabi cov-build.tar.gz cov-int/  obj-arm-linux-androideabi
 export PATH=$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin
 echo &quot;Cleanup previous report&quot;
@@ -44,34 +46,14 @@ rm -rf obj-arm-linux-androideabi cov-build.tar.gz cov-int/ objdir-frontend
 echo &quot;Cleanup&quot;
 ./mach clobber
 
-cat &gt; .mozconfig &lt;&lt;EOF
-# Build Firefox for Android:
-ac_add_options --enable-application=mobile/android
-ac_add_options --target=arm-linux-androideabi
-ac_add_options --enable-debug
-
-
-# With the following Android SDK and NDK:
-ac_add_options --with-android-sdk=&quot;/var/lib/jenkins/.mozbuild/android-sdk-linux&quot;
-ac_add_options --with-android-ndk=&quot;/var/lib/jenkins/.mozbuild/android-ndk-r15c&quot;
-
-# Don&apos;t want to have proguard run on it
-export MOZ_DISABLE_PROGUARD=1
-
-# Front end path 
-mk_add_options MOZ_OBJDIR=./objdir-frontend
-
-#ac_add_options --enable-artifact-builds
-
-mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
-EOF
-
-echo &quot;Apply patches on top of the hg repo&quot;
-hg qpop -a
-hg qpush -a
+cat .mozconfig
 
 echo &quot;Rebuild all&quot;
 cov-configure --java --force-debug --xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
+# Run the configure separatly to avoid issues detection here
+JAVA_OPTS=&apos;-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee&apos; ./mach --log-no-times configure
+# Please see https://bit.ly/2Pb1GF7
+export COVERITY_NO_PRELOAD_CLASSES=java.io.ObjectInputStream
 cov-build --dir cov-int  ./mach --log-no-times build -v
 
 tar zcvf cov-build.tar.gz cov-int/
@@ -91,11 +73,16 @@ fi
 
 rm -rf obj-arm-linux-androideabi cov-build.tar.gz cov-int/  obj-arm-linux-androideabi objdir-frontend
 exit 0
+GLOBALEOF
+
+chmod +x stretch/root/run-fennec.sh
+
+sudo chroot ~/stretch/ ./root/run-fennec.sh
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.20">
+    <hudson.tasks.Mailer plugin="mailer@1.22">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

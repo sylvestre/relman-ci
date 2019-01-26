@@ -3,7 +3,16 @@
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>4</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
@@ -17,13 +26,12 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>VERSION=7
-sudo /usr/bin/apt-get update
-sudo /usr/bin/apt-get install clang-tidy-$VERSION clang-$VERSION lld-$VERSION clang-tools-$VERSION -t llvm-toolchain-stretch -y --force-yes</command>
+      <command>sudo /usr/bin/apt-get update
+sudo /usr/bin/apt-get install clang-tidy-$CLANG_VERSION clang-$CLANG_VERSION lld-$CLANG_VERSION clang-tools-$CLANG_VERSION libc++-$CLANG_VERSION-dev llvm-$CLANG_VERSION -t llvm-toolchain-stretch -y --force-yes</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.21">
+    <hudson.tasks.Mailer plugin="mailer@1.23">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

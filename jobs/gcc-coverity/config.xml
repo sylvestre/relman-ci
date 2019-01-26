@@ -3,23 +3,17 @@
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.8.0">
-    <configVersion>2</configVersion>
-    <userRemoteConfigs>
-      <hudson.plugins.git.UserRemoteConfig>
-        <url>https://github.com/gcc-mirror/gcc.git</url>
-      </hudson.plugins.git.UserRemoteConfig>
-    </userRemoteConfigs>
-    <branches>
-      <hudson.plugins.git.BranchSpec>
-        <name>*/master</name>
-      </hudson.plugins.git.BranchSpec>
-    </branches>
-    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <submoduleCfg class="list"/>
-    <extensions/>
-  </scm>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>4</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -32,9 +26,20 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>set -e 
-export PATH=$PATH:/opt/cov-analysis/bin/
+      <command>
+set -e 
+cd ~jenkins
 
+cat &gt; stretch/root/run-gcc.sh &lt;&lt;GLOBALEOF
+set -e
+set -v
+
+export PATH=$PATH:/opt/cov-analysis/bin/
+if test ! -d /root/gcc-coverity; then
+git clone https://github.com/gcc-mirror/gcc.git /root/gcc-coverity
+fi
+cd /root/gcc-coverity
+git pull
 
 echo &quot;Rebuild all&quot;
 cov-configure --gcc --xml-option=skip_file:&quot;/tmp/*&quot;
@@ -60,13 +65,21 @@ fi
 make distclean||true
 
 rm -rf ../build-gcc
-
 exit 0
+
+GLOBALEOF
+
+chmod +x stretch/root/run-gcc.sh
+
+sudo chroot ~/stretch/ ./root/run-gcc.sh
+
+
+
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.21">
+    <hudson.tasks.Mailer plugin="mailer@1.22">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

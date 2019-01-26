@@ -28,13 +28,17 @@
   <builders>
     <hudson.tasks.Shell>
       <command>set -e 
+sudo mount -t proc /proc unstable.chroot/proc/ || true
+sudo mount --bind /dev unstable.chroot/dev || true
+sudo mount --bind /dev/pts unstable.chroot/dev/pts || true
+
 sudo chroot unstable.chroot/ ./run.sh 
 exit 0
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.66">
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@5.0.0">
       <healthy></healthy>
       <unHealthy></unHealthy>
       <thresholdLimit>low</thresholdLimit>
@@ -76,7 +80,7 @@ exit 0
         </hudson.plugins.warnings.ConsoleParser>
       </consoleParsers>
     </hudson.plugins.warnings.WarningsPublisher>
-    <hudson.tasks.Mailer plugin="mailer@1.21">
+    <hudson.tasks.Mailer plugin="mailer@1.23">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
