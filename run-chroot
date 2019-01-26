@@ -1,0 +1,12 @@
+#! /bin/sh
+[ ! -d "$1" ] && echo "$1 is not a valid directory." && exit 1;
+trap "umount \"${1}\"/tmp \"${1}\"/dev/null \"${1}\"/dev/pts \"${1}\"/dev/random \"${1}\"/dev/shm \"${1}\"/dev/urandom \"${1}\"/proc" EXIT INT TERM HUP PIPE &&
+    mount --bind /tmp "${1}/tmp" && \
+    mount --bind /dev/null "${1}/dev/null" && \
+    mount --bind /dev/pts "${1}/dev/pts" && \
+    mount --bind /dev/random "${1}/dev/random" && \
+    mount --bind /dev/shm "${1}/dev/shm" && \
+    mount --bind /dev/urandom "${1}/dev/urandom" && \
+    mount --bind /proc "${1}/proc" && \
+    chroot "$@";
+    exit
