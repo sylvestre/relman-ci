@@ -4,11 +4,8 @@
     <string>OldData</string>
     <string>jenkins.security.s2m.MasterKillSwitchWarning</string>
   </disabledAdministrativeMonitors>
-  <version>2.107.3</version>
-  <installState class="jenkins.install.InstallState$5">
-    <isSetupComplete>true</isSetupComplete>
-    <name>RESTART</name>
-  </installState>
+  <version>2.150.2</version>
+  <installStateName>RESTART</installStateName>
   <numExecutors>2</numExecutors>
   <mode>NORMAL</mode>
   <useSecurity>true</useSecurity>
@@ -36,7 +33,7 @@
     <hudson.model.AllView>
       <owner class="hudson" reference="../../.."/>
       <name>all</name>
-      <description>Hosted by IRILL (http://www.irill.org/)</description>
+      <description></description>
       <filterExecutors>false</filterExecutors>
       <filterQueue>false</filterQueue>
       <properties class="hudson.model.View$PropertyList"/>
@@ -78,7 +75,9 @@
         <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../listView/jobNames/comparator"/>
         <string>fennec-coverity</string>
         <string>firefox-coverity</string>
+        <string>firefox-coverity-license</string>
         <string>instantbird-coverity</string>
+        <string>nss-coverity-license</string>
         <string>thunderbird-coverity</string>
       </jobNames>
       <jobFilters/>
@@ -124,5 +123,19 @@
   <slaveAgentPort>0</slaveAgentPort>
   <label></label>
   <nodeProperties/>
-  <globalNodeProperties/>
+  <globalNodeProperties>
+    <hudson.slaves.EnvironmentVariablesNodeProperty>
+      <envVars serialization="custom">
+        <unserializable-parents/>
+        <tree-map>
+          <default>
+            <comparator class="hudson.util.CaseInsensitiveComparator"/>
+          </default>
+          <int>1</int>
+          <string>CLANG_VERSION</string>
+          <string>9</string>
+        </tree-map>
+      </envVars>
+    </hudson.slaves.EnvironmentVariablesNodeProperty>
+  </globalNodeProperties>
 </hudson>
