@@ -24,6 +24,8 @@ export CXXFLAGS="-I/usr/include/c++/6/ -I/usr/include/x86_64-linux-gnu/c++/6/ -I
 mk_add_options MOZ_MAKE_FLAGS="-j16"
 EOF
 
+rm -f third_party/rust/lalrpop/src/parser/lrgrammar.rs
+
 echo "Rebuild all"
 cov-configure --gcc --force-debug
 cov-configure  --comptype clangcc --compiler clang-5.0
