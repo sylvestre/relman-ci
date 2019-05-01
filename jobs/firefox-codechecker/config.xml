@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.6">
     <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -62,27 +62,26 @@ cat &gt;&gt; skip.list &lt;&lt;EOF
 -*/mfbt/tests/*
 -*/dom/bindings/Test*
 EOF
-#source ~/checker_env/bin/activate
+
 source ~/workspace/update-codechecker/venv/bin/activate
+
 pip install thrift==0.11.0
 pip install psycopg2
 export PATH=~/workspace/update-codechecker/build/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
 nohup bash ~/run-server-codechecker.sh &amp;
 cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
-#CHECKS=$(CodeChecker checkers|awk &apos;{print &quot;-e &quot; $2}&apos; |grep -v -E &quot;(alpha\.|osx\.|debug\.|google-readability-casting|llvm-include-order|google-readability-braces-around-statements)&quot;|tr &quot;\n&quot; &quot; &quot;)
-#CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list $CHECKS  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
-
-
-#CodeChecker check --postgresql --dbusername codechecker_user -j 13 -u suppress.txt --keep-tmp -s skip.list  -n firefox_$(date &quot;+%Y%m%d%H%M&quot;)  -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 12&quot;
 
 CHECKERS=$(CodeChecker checkers |awk &apos;{print &quot;--enable &quot; $1}&apos;|grep -v -E &apos;(google-readability-todo|android-|hicpp-no-assembler|fuchsia-|debug\.)&apos;)
 echo $CHECKERS
 
+#cargo install --force cbindgen
+
 ./mach configure
 ./mach build pre-export export
 ./mach build-backend -b CompileDB
-#CodeChecker check --verbose debug -j 13 -b &quot;hg pull -u &amp;&amp; hg update -r default &amp;&amp; ./mach build -j 23&quot; -o codechecker-results $CHECKERS --timeout 120 --skip skip.list
-#--verbose debug
+# See https://github.com/Ericsson/codechecker/issues/2103
+sed -i -e &quot;s|-include /var/lib/jenkins/workspace/firefox-codechecker/config/gcc_hidden.h||g&quot; obj-firefox/compile_commands.json 
+
 CodeChecker check  -j 13 --logfile obj-firefox/compile_commands.json -o codechecker-results $CHECKERS --timeout 120 --skip skip.list
 CodeChecker store codechecker-results/ -n firefox_$(date &quot;+%Y%m%d%H%M&quot;) --url firefox
 #rm -rf obj-x86_64-pc-linux-gnu/

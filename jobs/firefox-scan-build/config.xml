@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.6">
     <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -79,8 +79,8 @@ done
 
 ALPHA_CHECKERS=$(scan-build-$CLANG_VERSION --help|grep alpha|grep -v alpha.osx|awk  &apos;{print &quot;-enable-checker &quot; $1}&apos;|tr &quot;\n&quot; &quot; &quot;)
 echo $ALPHA_CHECKERS
-ALPHA_CHECKERS=&quot;-enable-checker alpha.cplusplus.DanglingInternalBuffer -enable-checker alpha.cplusplus.DeleteWithNonVirtualDtor -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.cplusplus.MisusedMovedObject -enable-checker alpha.cplusplus.UninitializedObject &quot; 
-ALPHA_CHECKERS=&quot;-enable-checker alpha.cplusplus.UninitializedObject -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.core.BoolAssignment&quot;
+ALPHA_CHECKERS=&quot;-enable-checker alpha.cplusplus.DanglingInternalBuffer -enable-checker alpha.cplusplus.DeleteWithNonVirtualDtor -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.cplusplus.MisusedMovedObject -enable-checker optin.cplusplus.UninitializedObject &quot; 
+ALPHA_CHECKERS=&quot;-enable-checker optin.cplusplus.UninitializedObject -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.core.BoolAssignment&quot;
 # -enable-checker alpha.core.IdenticalExpr           # wait too many false positive
 # -enable-checker alpha.deadcode.UnreachableCode     # Freezes the build
 # PATH=$PATH:/usr/share/clang/scan-build-py-$CLANG_VERSION/bin/ scan-build-py-$CLANG_VERSION $EXCLUDES -enable-checker optin.performance.Padding $ALPHA_CHECKERS -analyzer-config stable-report-filename=true -v ./mach --log-no-times build -v  

@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.5">
     <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -55,14 +55,15 @@ echo &quot;Cleanup&quot;
 ./mach clobber
 
 export MACH_NO_WRITE_TIMES=on
-
+rm -f .mozconfig
 cat &gt; .mozconfig &lt;&lt;EOF
 export CC=clang-$CLANG_VERSION
 export CXX=clang++-$CLANG_VERSION
 ac_add_options --enable-debug
 # --disable-unified-compilation
 ac_add_options --enable-warnings-as-errors 
-export CXXFLAGS=&quot;-Wno-error=pessimizing-move -Wlarge-by-value-copy=512&quot;
+
+export CXXFLAGS=&quot;-Wno-error=pessimizing-move -Wno-error=large-by-value-copy=128 -Wempty-init-stmt&quot;
 
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j14&quot;
 EOF
@@ -70,8 +71,9 @@ EOF
 export PATH=$PATH:/var/lib/jenkins/.cargo/bin/
 
 echo &quot;Updating rust (just in case)&quot;
+
 rustup update
-rustup component add rustfmt
+#rustup component add rustfmt
 cargo install cbindgen --force
 echo &quot;Build using clang $CLANG_VERSION&quot;
 ./mach --log-no-times build 
@@ -81,7 +83,7 @@ rm -rf obj-* reports/fx-scan-build/</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@5.0.0">
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@5.0.1">
       <healthy></healthy>
       <unHealthy></unHealthy>
       <thresholdLimit>low</thresholdLimit>

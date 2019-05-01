@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.5">
     <source>https://hg.mozilla.org/projects/nspr</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -38,7 +38,7 @@
 
 
 ./configure --enable-debug --enable-64bit
-scan-build-7 -enable-checker optin.performance.Padding -analyzer-config stable-report-filename=true -v make
+scan-build-${CLANG_VERSION} -enable-checker optin.performance.Padding -analyzer-config stable-report-filename=true -v make
 
 echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
 SCAN_BUILD_DIR=$(ls -1d /tmp/scan-build-*|tail -1)

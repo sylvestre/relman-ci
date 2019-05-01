@@ -28,16 +28,54 @@
   <builders>
     <hudson.tasks.Shell>
       <command>set -e
-sudo mount -t proc /proc unstable.chroot/proc/ || true
-sudo mount --bind /dev unstable.chroot/dev || true
-sudo mount --bind /dev/pts unstable.chroot/dev/pts || true
-sudo chroot unstable.chroot/ ./run.sh 
+cat &gt; unstable.chroot/root/run.sh &lt;&lt;GLOBALEOF
+set -e
+set -v
+echo &quot;deb http://deb.debian.org/debian experimental main&quot;&gt;/etc/apt/sources.list.d/exp.list
+apt-get update
+apt-get install -y gcc-9 g++-9 mercurial -t experimental
+if test ! -d /root/firefox-gcc-last; then
+hg clone https://hg.mozilla.org/mozilla-central/ /root/firefox-gcc-last
+fi
+cd /root/firefox-gcc-last
+rm  -f third_party/rust/lalrpop/src/parser/lrgrammar.rs
+cat .mozconfig
+
+cat &gt; .mozconfig &lt;&lt; EOF
+ac_add_options --enable-debug
+ac_add_options --enable-warnings-as-errors
+mk_add_options AUTOCLOBBER=1
+#ac_add_options --disable-rust
+
+#mk_add_options MOZ_MAKE_FLAGS=&quot;-j1&quot;
+CC=gcc-9
+CXX=g++-9
+
+#export CFLAGS=&quot;-Wduplicated-branches&quot;
+#-Wformat-overflow=level&quot;
+#export CXXFLAGS=&quot;-Wduplicated-branches&quot; 
+#-Wformat-overflow=level&quot;
+export CXXFLAGS=&quot;-Wno-error=class-memaccess -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-stringop-overflow -Wno-error=attributes -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-error=type-limits&quot;
+export CFLAGS=&quot;-Wno-error=class-memaccess -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-stringop-overflow -Wno-error=type-limits&quot;
+EOF
+
+./mach clobber
+hg pull -u
+hg update -r default
+export PATH=/root/.cargo/bin/:$PATH
+rustup update
+cargo install cbindgen --force
+./mach  --log-no-times  build #-v
+rm -rf obj-x86_64-pc-linux-gnu/
+
+GLOBALEOF
+sudo chroot unstable.chroot/ ./root/run.sh 
 exit 0
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@5.0.0">
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@5.0.1">
       <healthy></healthy>
       <unHealthy></unHealthy>
       <thresholdLimit>low</thresholdLimit>

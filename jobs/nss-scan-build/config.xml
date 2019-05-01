@@ -32,7 +32,7 @@ fi
 
 cd nss
 make nss_clean_all
-USE_64=1 scan-build-7  -analyzer-config stable-report-filename=true make nss_build_all
+USE_64=1 scan-build-${CLANG_VERSION}  --show-description -analyzer-config stable-report-filename=true make nss_build_all
 
  
 echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
