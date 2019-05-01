@@ -20,14 +20,17 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H 0,8,16 * * *</spec>
+      <spec>H 0 * * 0,2,4,6</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>sudo /usr/bin/apt-get update
-sudo /usr/bin/apt-get install clang-tidy-$CLANG_VERSION clang-$CLANG_VERSION lld-$CLANG_VERSION clang-tools-$CLANG_VERSION libc++-$CLANG_VERSION-dev llvm-$CLANG_VERSION -t llvm-toolchain-stretch -y --force-yes</command>
+sudo /usr/bin/apt-get install clang-tidy-$CLANG_VERSION clang-$CLANG_VERSION lld-$CLANG_VERSION clang-tools-$CLANG_VERSION libc++-$CLANG_VERSION-dev llvm-$CLANG_VERSION -t llvm-toolchain-stretch -y --force-yes
+sudo /bin/chmod 777 /dev/shm
+export PATH=/var/lib/jenkins/.cargo/bin/:$PATH
+cargo install --force cbindgen</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
