@@ -4,7 +4,7 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.4.4">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -26,31 +26,47 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>@daily</spec>
+      <spec>H 17 * * 5</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
+make clean
+rm -rf venv
 make venv
 pip install wheel
-pip install -r .ci/basic_python_requirements
-pip install -r .ci/python_requirements_psql_psycopg2
-pip install thrift==0.11.0
-sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-8&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-8&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+pip install -r analyzer/requirements.txt
+pip install -r web/requirements.txt
+pip install -r web/requirements_py/dev/requirements.txt
+pip install -r web/requirements_py/db_psycopg2/requirements.txt
+#pip install thrift==0.11.0
+
 make package
+sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang-11&quot;|&quot;clangsa&quot;: &quot;clang-12&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy-11&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-12&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+
+sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-12&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-12&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+if ! grep clang-$CLANG_VERSION ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json; then
+echo &quot;Cannot find clang-$CLANG_VERSION&quot;
+exit 10
+fi
+
+
 #kill $(ps faxw|grep &quot;CodeChecker server&quot;|grep python|awk &apos;{print $1}&apos;)
 #nohup bash ~/run-server-codechecker.sh &amp;
  
 </command>
+      <configuredLocalRules/>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command></command>
+      <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.22">
+    <hudson.tasks.Mailer plugin="mailer@1.32.1">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

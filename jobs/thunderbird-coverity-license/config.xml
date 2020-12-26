@@ -15,27 +15,28 @@
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
-  <disabled>false</disabled>
+  <disabled>true</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H 0 * * 0,2,4,6</spec>
+      <spec>@daily</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>sudo /usr/bin/apt-get update
-sudo /usr/bin/apt-get install clang-tidy-$CLANG_VERSION clang-$CLANG_VERSION lld-$CLANG_VERSION clang-tools-$CLANG_VERSION libc++abi-$CLANG_VERSION-dev  libc++-$CLANG_VERSION-dev llvm-$CLANG_VERSION libllvm$CLANG_VERSION  libclang1-$CLANG_VERSION  -t llvm-toolchain-$(lsb_release -c|awk &apos;{print $2}&apos;) -y --force-yes
-sudo /bin/chmod 777 /dev/shm
-export PATH=/var/lib/jenkins/.cargo/bin/:$PATH
-cargo install --force cbindgen</command>
+      <command>cd ~/
+set -e
+
+#sudo ./run-chroot firefox-bootstrap/ /root/coverity/run-firefox.sh
+sudo chroot firefox-bootstrap/ /root/coverity/run-thunderbird.sh
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.Mailer plugin="mailer@1.30">
-      <recipients>sylvestre@mozilla.com</recipients>
+      <recipients>andi@mozilla.com, s@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>

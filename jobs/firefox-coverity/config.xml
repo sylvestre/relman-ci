@@ -35,9 +35,15 @@
 
 cd ~jenkins/
 
-cat &gt; stretch/root/run.sh &lt;&lt;GLOBALEOF
+
+cat &gt; buster/root/run.sh &lt;&lt;GLOBALEOF
 set -e
 set -v
+
+echo &quot;deb  [ allow-insecure=yes ] http://apt.llvm.org/buster/ llvm-toolchain-buster-8 main&quot; &gt; /etc/apt/sources.list.d/llvm-8.list
+apt   --allow-unauthenticated update
+apt install  --allow-unauthenticated -y clang-8 mercurial
+
 if test ! -d /root/firefox-coverity; then
 hg clone https://hg.mozilla.org/mozilla-central/ /root/firefox-coverity
 fi
@@ -46,41 +52,55 @@ hg pull https://hg.mozilla.org/mozilla-central/ -u
 
 rm -rf obj-x86_64-pc-linux-gnu/
 rm -rf cov-int/
-rm -rf cov-build.tar.gz
-export PATH=$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin
-# cargo install cbindgen
+rm -rf cov-build.zip
+
+export PATH=$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin:/opt/cov-analysis/bin
+export PATH=&quot;/root/.cargo/bin:$PATH:/opt/cov-analysis/bin&quot;
+rustup update
+cargo install cbindgen --force
+
+./mach create-mach-environment
 
 echo &quot;Cleanup&quot;
+
 ./mach clobber
 
 cat &gt; .mozconfig &lt;&lt; EOF
 ac_add_options --enable-debug
+#ac_add_options --enable-linker=gold
 ac_add_options --disable-av1
-export CC=clang-5.0
-export CXX=clang++-5.0
-export CXXFLAGS=&quot;-I/usr/include/c++/6/ -I/usr/include/x86_64-linux-gnu/c++/6/ -I/usr/include/c++/6/backward/&quot;
+export CC=clang-8
+export CXX=clang++-8
+
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j16&quot;
 EOF
 
 rm -f third_party/rust/lalrpop/src/parser/lrgrammar.rs
 
 echo &quot;Rebuild all&quot;
-cov-configure --gcc --force-debug
-cov-configure  --comptype clangcc --compiler clang-5.0
+cov-configure --comptype clangcc --compiler clang-8
+cov-configure --comptype clangcc --compiler clang++-8
 
-#cov-build --dir cov-int  ./mach --log-no-times build -v
 cov-build --dir cov-int  ./mach --log-no-times build
-cov-analyze --dir cov-int --all
+cp cov-int/build-log.txt cov-int/build-log.txt.back
+# For some reasons, coverity addss garbage at the end. Removing it
+LINE=\$(grep -n &quot;The cov-build utility completed successfully.&quot;  cov-int/build-log.txt |cut -d: -f1)
+#LINE=\$((LINE+1))
+sed &quot;\$LINE,\\\$d&quot; &lt; cov-int/build-log.txt &gt; cov-int/build-log.txt.tmp
+sed -i  &quot;/EXECUTING: sh /root/.*/build/moz.configure/../autoconf/config.guess/d&quot; cov-int/build-log.txt.tmp
+mv cov-int/build-log.txt.tmp cov-int/build-log.txt
 
-tar zcvf cov-build.tar.gz cov-int/
+tail cov-int/build-log.txt
+
+zip -r cov-build.zip cov-int/
 
 minimumsize=190000
 
 actualsize=$(du -k cov-build.tar.gz | cut -f 1)
 if [ $actualsize -ge $minimumsize ]; then
-	sh /opt/upload-to-coverity-fx.sh
+	sh /opt/upload-to-coverity-fx.zip.sh
 else
-	echo &quot;Unexpected filesize. Should be at least $minimumsize (found $actualize)&quot;
+	echo &quot;Unexpected filesize. Should be at least $minimumsize (found \$actualize)&quot;
 	exit 1
 fi
 
@@ -89,15 +109,31 @@ exit 0
 
 GLOBALEOF
 
-chmod +x stretch/root/run.sh
+chmod +x buster/root/run.sh
 
-sudo chroot ~/stretch/ ./root/run.sh
-# sudo chroot ~/stretch/ ./root/run.sh
+PATH_CHROOT=~/buster/
+if ! test -e $PATH_CHROOT/dev/null; then
+	sudo mount --bind /dev $PATH_CHROOT/dev
+fi
+if ! test -e $PATH_CHROOT/proc/uptime; then
+	sudo mount -t proc /proc $PATH_CHROOT/proc
+fi
+if ! test -e $PATH_CHROOT/dev/pts/0; then
+	sudo mount -t devpts devpts $PATH_CHROOT/dev/pts
+fi
+
+if [ -z &quot;$(ls -A $PATH_CHROOT/dev/shm)&quot; ]; then
+# No file in /dev/shm, I guess we should mount it
+	sudo mount --bind /dev/shm $PATH_CHROOT/dev/shm
+fi
+
+sudo chroot $PATH_CHROOT/ ./root/run.sh
+
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.23">
+    <hudson.tasks.Mailer plugin="mailer@1.32">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

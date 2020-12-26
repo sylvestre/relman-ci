@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.4">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.6">
     <source>https://hg.mozilla.org/projects/nss</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -39,7 +39,7 @@
       <command>set -e 
 export PATH=$PATH:/opt/cov-analysis/bin/
 echo &quot;Cleanup previous report&quot;
-rm -rf reports/
+rm -rf reports/ nss/cov-int/
 umask 0022
 rm -rf $(find . -name &quot;*.OBJ&quot;)
 if test ! -d nspr; then
@@ -76,7 +76,7 @@ exit 0
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.21">
+    <hudson.tasks.Mailer plugin="mailer@1.23">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

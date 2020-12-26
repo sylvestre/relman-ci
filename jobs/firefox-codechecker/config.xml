@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.6">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.10">
     <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -55,6 +55,9 @@ mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-firefox
 EOF
 ./mach clobber
 
+# Kill the server, will be restarted immediatly
+kill $(ps fax|grep &quot;CodeChecker&quot;|awk &apos;{print $1}&apos;|head -1)||true
+
 awk &apos;{print &quot;-*&quot;$1&quot;*&quot;}&apos;  tools/rewriting/ThirdPartyPaths.txt &gt; skip.list
 cat &gt;&gt; skip.list &lt;&lt;EOF
 -/usr/*
@@ -69,24 +72,30 @@ pip install thrift==0.11.0
 pip install psycopg2
 export PATH=~/workspace/update-codechecker/build/CodeChecker/bin:/var/lib/jenkins/.cargo/bin/:$PATH
 nohup bash ~/run-server-codechecker.sh &amp;
-cat ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
+sed -i -e &apos;s|&quot;clangsa&quot;: &quot;clang&quot;|&quot;clangsa&quot;: &quot;clang-12&quot;|g&apos; -e &apos;s|&quot;clang-tidy&quot;: &quot;clang-tidy&quot;|&quot;clang-tidy&quot;: &quot;clang-tidy-12&quot;|g&apos; ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json
 
-CHECKERS=$(CodeChecker checkers |awk &apos;{print &quot;--enable &quot; $1}&apos;|grep -v -E &apos;(google-readability-todo|android-|hicpp-no-assembler|fuchsia-|debug\.)&apos;)
+if ! grep clang-tidy-$CLANG_VERSION ~/workspace/update-codechecker/build/CodeChecker/config/package_layout.json; then
+	echo &quot;could not find clang-tidy-$CLANG_VERSION in the configuration&quot;
+    echo &quot;New version and this file needs to be updated by hand?&quot;
+    exit 1
+fi
+
+CHECKERS=$(CodeChecker checkers |awk &apos;{print &quot;--enable &quot; $1}&apos;|grep -v -E &apos;(google-readability-todo|android-|hicpp-no-assembler|fuchsia-|debug\.|modernize-use-trailing-return-type|google-readability-avoid-underscore-in-googletest-name|abseil-|readability-implicit-bool-conversion|cppcoreguidelines-avoid-magic-numbers|readability-magic-numbers|readability-uppercase-literal-suffix|llvmlibc-|alpha\.|webkit\.|readability-isolate-declaration|clang-diagnostic-unused-parameter|misc-unused-parameters|hicpp-|google-build-using-namespace)&apos;)
 echo $CHECKERS
 
-#cargo install --force cbindgen
+cargo install --force cbindgen
 
 ./mach configure
 ./mach build pre-export export
 ./mach build-backend -b CompileDB
-# See https://github.com/Ericsson/codechecker/issues/2103
-sed -i -e &quot;s|-include /var/lib/jenkins/workspace/firefox-codechecker/config/gcc_hidden.h||g&quot; obj-firefox/compile_commands.json 
-
-CodeChecker check  -j 13 --logfile obj-firefox/compile_commands.json -o codechecker-results $CHECKERS --timeout 120 --skip skip.list
+CodeChecker analyze --timeout 60 -j 13 obj-firefox/compile_commands.json --checker-config &quot;clang-tidy:readability-else-after-return.WarnOnConditionVariables=0&quot; --analyzer-config clang-tidy:HeaderFilterRegex=\&quot;\&quot; -o codechecker-results $CHECKERS --timeout 120 --skip skip.list || true
+  
 CodeChecker store codechecker-results/ -n firefox_$(date &quot;+%Y%m%d%H%M&quot;) --url firefox
-#rm -rf obj-x86_64-pc-linux-gnu/
+CodeChecker parse -e html ./codechecker-results/ -o ./reports_html
+
 rm -rf obj-firefox/
 </command>
+      <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -97,6 +106,7 @@ rm -rf obj-firefox/
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
       <caseSensitive>true</caseSensitive>
+      <followSymlinks>true</followSymlinks>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers/>

@@ -29,7 +29,7 @@
       <command>set -e 
 cd ~jenkins/
 
-cat &gt; stretch/root/run-thunderbird.sh &lt;&lt;GLOBALEOF
+cat &gt; buster/root/run-thunderbird.sh &lt;&lt;GLOBALEOF
 set -v
 if test ! -d /root/thunderbird-coverity; then
 hg clone https://hg.mozilla.org/mozilla-central/ /root/thunderbird-coverity
@@ -48,7 +48,7 @@ else
 fi
 
 export PATH=\$PATH:/opt/cov-analysis/bin/:/var/lib/jenkins/.cargo/bin
-cargo install cbindgen
+cargo install cbindgen --force
 echo &quot;Cleanup previous build&quot;
 rm -rf obj-x86_64-unknown-linux-gnu cov-build.tar.gz cov-int/ obj-x86_64-pc-linux-gnu
 
@@ -59,11 +59,15 @@ python client.py checkout
 
 echo &quot;Cleanup&quot;
 ./mach clobber
+echo &apos;ac_add_options --enable-application=comm/mail&apos; &gt; .mozconfig
+echo &apos;ac_add_options --enable-debug&apos; &gt;&gt; .mozconfig
+echo &apos;ac_add_options --enable-calendar&apos; &gt;&gt; .mozconfig
+echo &apos;ac_add_options --disable-gtest-in-build&apos; &gt;&gt; .mozconfig
 
 cat .mozconfig
 
 cov-configure --gcc
-cov-configure  --comptype clangcc --compiler clang-5.0
+cov-configure  --comptype clangcc --compiler clang-8
 
 #--xml-option=skip_file:&quot;(\/tmp\/.*\.(cpp|cc|c))|(\/usr\/.*)|(mozilla\/.*)&quot;
 
@@ -71,13 +75,33 @@ cov-configure  --comptype clangcc --compiler clang-5.0
 ./mach  --log-no-times configure
 
 echo &quot;Rebuild all without coverity&quot;
-./mach --log-no-times build -v
+./mach --log-no-times build
 
 echo &quot;Touch all tb files to retrigger the build&quot;
 touch \$(find comm/ -type f -iname &apos;*.cpp&apos; -o -iname &apos;*.c&apos;)
 
 echo &quot;build only tb files using coverity&quot;
 cov-build --dir cov-int ./mach --log-no-times build -v
+
+
+# For some reasons, coverity adds garbage at the end. Removing it
+LINE=\$(grep -n &quot;are ready for analysis&quot;  cov-int/build-log.txt |cut -d: -f1)
+if test -z &quot;\$LINE&quot;; then
+	echo &quot;are ready for analysis&quot;
+	exit 1
+fi
+sed -i &apos;\$LINE,\$d&apos; cov-int/build-log.txt
+
+#LINE=\$((LINE+1))
+#sed -i &apos;1é,/pattern/!d&apos; cov-int/build-log.txt
+#sed &quot;\$LINE,\\\$d&quot; &lt; cov-int/build-log.txt &gt; cov-int/build-log.txt.tmp
+#sed -i  &quot;/EXECUTING: /usr/bin/python.* /root/thunderbird-coverity/python/.*/d&quot; cov-int/build-log.txt.tmp
+#sed -i -e :a -e &apos;/^\n*$/{$d;N;};/\n$/ba&apos; cov-int/build-log.txt.tmp
+#sed -i  &quot;/EXECUTING: sh /root/.*/build/moz.configure/../autoconf/config.guess/d&quot; cov-int/build-log.txt.tmp
+
+#mv cov-int/build-log.txt.tmp cov-int/build-log.txt
+tail cov-int/build-log.txt
+
 
 tar zcvf cov-build.tar.gz cov-int/
 
@@ -86,7 +110,7 @@ actualsize=\$(du -k cov-build.tar.gz | cut -f 1)
 if [ \$actualsize -ge \$minimumsize ]; then
         sh /opt/upload-to-coverity.sh
 else
-	echo &quot;Unexpected filesize. Should be at least \$minimumsize (found \$actualize)&quot;
+	echo &quot;Unexpected filesize. Should be at least \$minimumsize (found \$actualsize)&quot;
 	exit 1
 fi
 
@@ -98,14 +122,22 @@ exit 0
 GLOBALEOF
 
 
-chmod +x stretch/root/run-thunderbird.sh
+if ! test -e ~/buster/dev/null; then
+	sudo mount --bind /dev ~/buster/dev
+fi
+if ! test -e ~/buster/proc/uptime; then
+	sudo mount -t proc /proc ~/buster/root/proc
+fi
 
-sudo chroot ~/stretch/ ./root/run-thunderbird.sh
+chmod +x buster/root/run-thunderbird.sh
+
+sudo chroot ~/buster/ ./root/run-thunderbird.sh
 </command>
+      <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.22">
+    <hudson.tasks.Mailer plugin="mailer@1.32.1">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

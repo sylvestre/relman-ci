@@ -38,7 +38,8 @@ if test ! -d /root/firefox-gcc-last; then
 hg clone https://hg.mozilla.org/mozilla-central/ /root/firefox-gcc-last
 fi
 cd /root/firefox-gcc-last
-rm  -f third_party/rust/lalrpop/src/parser/lrgrammar.rs
+
+
 cat .mozconfig
 
 cat &gt; .mozconfig &lt;&lt; EOF
@@ -50,26 +51,52 @@ mk_add_options AUTOCLOBBER=1
 #mk_add_options MOZ_MAKE_FLAGS=&quot;-j1&quot;
 CC=gcc-9
 CXX=g++-9
-
-#export CFLAGS=&quot;-Wduplicated-branches&quot;
-#-Wformat-overflow=level&quot;
-#export CXXFLAGS=&quot;-Wduplicated-branches&quot; 
-#-Wformat-overflow=level&quot;
-export CXXFLAGS=&quot;-Wno-error=class-memaccess -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-stringop-overflow -Wno-error=attributes -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-error=type-limits&quot;
-export CFLAGS=&quot;-Wno-error=class-memaccess -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-stringop-overflow -Wno-error=type-limits&quot;
+export CXXFLAGS=&quot;-DGLIB_DISABLE_DEPRECATION_WARNINGS&quot;
+export CFLAGS=&quot;-DGLIB_DISABLE_DEPRECATION_WARNINGS&quot;
+#export CXXFLAGS=&quot;-Wno-error=class-memaccess -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-stringop-overflow -Wno-error=attributes -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-error=type-limits&quot;
+#export CFLAGS=&quot;-Wno-error=class-memaccess -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-stringop-overflow -Wno-error=type-limits&quot;
 EOF
+./mach create-mach-environment
 
 ./mach clobber
 hg pull -u
+hg revert .
 hg update -r default
 export PATH=/root/.cargo/bin/:$PATH
+
+hg revert .
 rustup update
 cargo install cbindgen --force
+
+
+sed -i -e &quot;s|-Wno-unreachable-code-return||g&quot;  security/sandbox/linux/moz.build 
+cat security/sandbox/linux/moz.build 
+
+
 ./mach  --log-no-times  build #-v
 rm -rf obj-x86_64-pc-linux-gnu/
+hg revert security/sandbox/linux/moz.build
 
 GLOBALEOF
-sudo chroot unstable.chroot/ ./root/run.sh 
+
+PATH_CHROOT=/var/lib/jenkins/workspace/firefox-gcc-9-last/unstable.chroot
+if ! test -e $PATH_CHROOT/dev/null; then
+	sudo mount --bind /dev $PATH_CHROOT/dev
+fi
+if ! test -e $PATH_CHROOT/proc/uptime; then
+	sudo mount -t proc /proc $PATH_CHROOT/proc
+fi
+
+if ! test -e $PATH_CHROOT/dev/pts/0; then
+	sudo mount -t devpts devpts $PATH_CHROOT/dev/pts
+fi
+
+if [ -z &quot;$(ls -A $PATH_CHROOT/dev/shm)&quot; ]; then
+# No file in /dev/shm, I guess we should mount it
+	sudo mount --bind /dev/shm $PATH_CHROOT/dev/shm
+fi
+
+sudo chroot $PATH_CHROOT/ ./root/run.sh 
 exit 0
 </command>
     </hudson.tasks.Shell>
@@ -85,7 +112,7 @@ exit 0
       <usePreviousBuildAsReference>false</usePreviousBuildAsReference>
       <useStableBuildAsReference>false</useStableBuildAsReference>
       <useDeltaValues>false</useDeltaValues>
-      <thresholds plugin="analysis-core@1.95">
+      <thresholds plugin="analysis-core@1.96">
         <unstableTotalAll></unstableTotalAll>
         <unstableTotalHigh></unstableTotalHigh>
         <unstableTotalNormal></unstableTotalNormal>
@@ -117,7 +144,7 @@ exit 0
         </hudson.plugins.warnings.ConsoleParser>
       </consoleParsers>
     </hudson.plugins.warnings.WarningsPublisher>
-    <hudson.tasks.Mailer plugin="mailer@1.23">
+    <hudson.tasks.Mailer plugin="mailer@1.32.1">
       <recipients>sylvestre@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>

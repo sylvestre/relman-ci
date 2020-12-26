@@ -13,7 +13,7 @@
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.6">
+  <scm class="hudson.plugins.mercurial.MercurialSCM" plugin="mercurial@2.10">
     <source>https://hg.mozilla.org/mozilla-central/</source>
     <modules></modules>
     <revisionType>BRANCH</revisionType>
@@ -29,7 +29,7 @@
   <triggers>
     <jenkins.triggers.ReverseBuildTrigger>
       <spec></spec>
-      <upstreamProjects>update-clang, </upstreamProjects>
+      <upstreamProjects>update-clang,</upstreamProjects>
       <threshold>
         <name>SUCCESS</name>
         <ordinal>0</ordinal>
@@ -49,6 +49,7 @@ echo &quot;Cleanup previous build&quot;
 rm -rf rm -rf obj-x86_64-unknown-linux-gnu reports/ /tmp/scan-build-*
 
 echo &quot;Cleanup&quot;
+./mach create-mach-environment
 ./mach clobber
 
 export MACH_NO_WRITE_TIMES=on
@@ -56,16 +57,17 @@ export MACH_NO_WRITE_TIMES=on
 cat &gt; .mozconfig &lt;&lt;EOF
 ac_add_options --enable-debug
 ac_add_options --disable-av1
+ac_add_options --disable-gtest-in-build
 # --disable-unified-compilation
-ac_add_options --enable-warnings-as-errors 
+# ac_add_options --enable-warnings-as-errors 
 
 mk_add_options MOZ_MAKE_FLAGS=&quot;-j20&quot;
 EOF
+#patch -p1 &lt; /tmp/a.dif 
 
 echo &quot;Apply patches on top of the hg repo&quot;
-hg qpop -a
-hg qpush -a
-export PATH=$PATH:/var/lib/jenkins/.cargo/bin/
+#hg import -m &quot;disable a warning&quot; https://d3kxowhw4s8amj.cloudfront.net/file/data/2c4u4wzh4tn73n7na325/PHID-FILE-xzulk6bj35dosukl54sx/D43786.diff
+export PATH=/usr/lib/ccache:$PATH:/var/lib/jenkins/.cargo/bin/
 echo &quot;Build using scan-build&quot;
 
 # cargo install cbindgen --force
@@ -79,12 +81,14 @@ done
 
 ALPHA_CHECKERS=$(scan-build-$CLANG_VERSION --help|grep alpha|grep -v alpha.osx|awk  &apos;{print &quot;-enable-checker &quot; $1}&apos;|tr &quot;\n&quot; &quot; &quot;)
 echo $ALPHA_CHECKERS
-ALPHA_CHECKERS=&quot;-enable-checker alpha.cplusplus.DanglingInternalBuffer -enable-checker alpha.cplusplus.DeleteWithNonVirtualDtor -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.cplusplus.MisusedMovedObject -enable-checker optin.cplusplus.UninitializedObject &quot; 
-ALPHA_CHECKERS=&quot;-enable-checker optin.cplusplus.UninitializedObject -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.core.BoolAssignment&quot;
+#ALPHA_CHECKERS=&quot;-enable-checker alpha.cplusplus.DanglingInternalBuffer -enable-checker alpha.cplusplus.DeleteWithNonVirtualDtor -enable-checker alpha.cplusplus.IteratorRange -enable-checker alpha.cplusplus.MisusedMovedObject -enable-checker optin.cplusplus.UninitializedObject &quot; 
+#ALPHA_CHECKERS=&quot;-enable-checker optin.cplusplus.UninitializedObject -enable-checker alpha.core.BoolAssignment -enable-checker alpha.deadcode.UnreachableCode&quot;
 # -enable-checker alpha.core.IdenticalExpr           # wait too many false positive
 # -enable-checker alpha.deadcode.UnreachableCode     # Freezes the build
+# -enable-checker alpha.cplusplus.IteratorRange see https://reviews.llvm.org/D75171
+
 # PATH=$PATH:/usr/share/clang/scan-build-py-$CLANG_VERSION/bin/ scan-build-py-$CLANG_VERSION $EXCLUDES -enable-checker optin.performance.Padding $ALPHA_CHECKERS -analyzer-config stable-report-filename=true -v ./mach --log-no-times build -v  
-scan-build-$CLANG_VERSION --show-description  $EXCLUDES -enable-checker optin.performance.Padding $ALPHA_CHECKERS -analyzer-config stable-report-filename=true -v ./mach --log-no-times build #-v  
+scan-build-$CLANG_VERSION --show-description  $EXCLUDES -enable-checker optin.performance.Padding $ALPHA_CHECKERS -analyzer-config stable-report-filename=true --use-cc=clang-$CLANG_VERSION --use-c++=clang++-$CLANG_VERSION -v ./mach --log-no-times build || true
 # --show-description 
 echo &quot;Retrieve the last scan-build (-o of scan-build is failing)&quot;
 SCAN_BUILD_DIR=$(ls -1d /tmp/scan-build-*|tail -1)
@@ -97,24 +101,32 @@ echo &quot;Set correct permissions&quot;
 chmod o+rx reports/fx-scan-build/
 chmod o+r reports/fx-scan-build/*
 
+nb=$(ls -1 reports/fx-scan-build/failures/clang_other_error*|wc -l)
+
+if test $nb -gt 100; then
+	echo &quot;Too many errors, don&apos;t sync&quot;
+    exit 1
+fi
+
 echo &quot;Send it&quot;
-rsync -arv -R  reports/fx-scan-build/ sylvestre@batou.ecranbleu.org:/home/www/sylvestre.ledru.info/
+rsync -arv -R  reports/fx-scan-build/ sylvestre@cocoro.ecranbleu.org:/home/www/sylvestre.ledru.info/
 ./mach clobber
 
 rm -rf obj-x86_64-unknown-linux-gnu reports/fx-scan-build/</command>
+      <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.23">
+    <hudson.tasks.Mailer plugin="mailer@1.32.1">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.19">
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.20">
       <strategy class="hudson.plugins.build_timeout.impl.NoActivityTimeOutStrategy">
-        <timeoutSecondsString>600</timeoutSecondsString>
+        <timeoutSecondsString>2000</timeoutSecondsString>
       </strategy>
       <operationList/>
     </hudson.plugins.build__timeout.BuildTimeoutWrapper>

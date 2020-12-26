@@ -39,6 +39,7 @@ if test ! -d /root/gcc-coverity; then
 git clone https://github.com/gcc-mirror/gcc.git /root/gcc-coverity
 fi
 cd /root/gcc-coverity
+git reset --hard origin/master
 git pull
 
 echo &quot;Rebuild all&quot;
@@ -46,8 +47,8 @@ cov-configure --gcc --xml-option=skip_file:&quot;/tmp/*&quot;
 mkdir -p build-gcc
 cd build-gcc
 mkdir -p cov-int
-
-../configure --with-gnu-as --with-gnu-ld --disable-bootstrap  --enable-languages=jit,c,c++,fortran,lto,objc  --enable-host-shared
+# jit
+../configure --with-gnu-as --with-gnu-ld --disable-bootstrap  --enable-languages=c,c++,fortran,lto,objc  --enable-host-shared
 
 cov-build --dir cov-int make -j 7
 
@@ -79,7 +80,7 @@ sudo chroot ~/stretch/ ./root/run-gcc.sh
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.23">
+    <hudson.tasks.Mailer plugin="mailer@1.30">
       <recipients>sylvestre@mozilla.com, bpostelnicu@mozilla.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
