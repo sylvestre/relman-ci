@@ -39,7 +39,7 @@ cov-configure  --comptype clangcc --compiler clang-5.0
 ./mach  --log-no-times configure
 
 echo "Rebuild all without coverity"
-./mach --log-no-times build -v
+./mach --log-no-times build
 
 echo "Touch all tb files to retrigger the build"
 touch $(find comm/ -type f -iname '*.cpp' -o -iname '*.c')

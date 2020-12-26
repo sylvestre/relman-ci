@@ -6,6 +6,7 @@ if test ! -d /root/gcc-coverity; then
 git clone https://github.com/gcc-mirror/gcc.git /root/gcc-coverity
 fi
 cd /root/gcc-coverity
+git reset --hard origin/master
 git pull
 
 echo "Rebuild all"
@@ -13,8 +14,8 @@ cov-configure --gcc --xml-option=skip_file:"/tmp/*"
 mkdir -p build-gcc
 cd build-gcc
 mkdir -p cov-int
-
-../configure --with-gnu-as --with-gnu-ld --disable-bootstrap  --enable-languages=jit,c,c++,fortran,lto,objc  --enable-host-shared
+# jit
+../configure --with-gnu-as --with-gnu-ld --disable-bootstrap  --enable-languages=c,c++,fortran,lto,objc  --enable-host-shared
 
 cov-build --dir cov-int make -j 7
 
